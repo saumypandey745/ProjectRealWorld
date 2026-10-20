@@ -1,0 +1,125 @@
+{
+  "Description": "Project RealWorld - Physically Based City Material Architecture",
+  "MasterMaterials": [
+    {
+      "Name": "M_Master_Surface",
+      "BlendMode": "Opaque",
+      "ShadingModel": "DefaultLit",
+      "Parameters": ["BaseColorMap", "NormalMap", "ORMMap (Occlusion/Roughness/Metallic)", "DirtMask", "WetnessScale", "PuddleRipples"]
+    },
+    {
+      "Name": "M_Master_Road",
+      "BlendMode": "Opaque",
+      "ShadingModel": "DefaultLit",
+      "Parameters": ["AsphaltMacro", "LaneMarkingMask", "TireWearMask", "PuddleMask", "WetnessReflectivity", "RainRipples"]
+    },
+    {
+      "Name": "M_Master_Building",
+      "BlendMode": "Opaque",
+      "ShadingModel": "DefaultLit",
+      "Parameters": ["FacadeDiffuse", "NormalMap", "Roughness", "WindowMask", "NightEmissiveMap", "NightEmissiveMultiplier"]
+    },
+    {
+      "Name": "M_Master_Glass",
+      "BlendMode": "Translucent",
+      "ShadingModel": "DefaultLit",
+      "LightingMode": "SurfaceForwardShading",
+      "Parameters": ["GlassColor", "RefractionIndex", "RoughnessVariation", "InteriorEmissive", "RainStreaksNormal"]
+    },
+    {
+      "Name": "M_Master_Metal",
+      "BlendMode": "Opaque",
+      "ShadingModel": "DefaultLit",
+      "Parameters": ["BaseColor", "Metallic (0.9-1.0)", "Roughness", "RustMask", "NormalStrength"]
+    },
+    {
+      "Name": "M_Master_Concrete",
+      "BlendMode": "Opaque",
+      "ShadingModel": "DefaultLit",
+      "Parameters": ["ConcreteBase", "PaverGridMask", "NormalMap", "ExpansionJointNormal", "GutterGrimeMask"]
+    }
+  ],
+  "MaterialInstances": [
+    {
+      "Name": "MI_Road_Asphalt",
+      "Parent": "M_Master_Road",
+      "BaseColor": [0.12, 0.12, 0.13, 1.0],
+      "Roughness": 0.82,
+      "Metallic": 0.0,
+      "NormalStrength": 1.1,
+      "WetnessInfluence": 1.0
+    },
+    {
+      "Name": "MI_Road_WetAsphalt",
+      "Parent": "M_Master_Road",
+      "BaseColor": [0.06, 0.06, 0.07, 1.0],
+      "Roughness": 0.10,
+      "Metallic": 0.0,
+      "NormalStrength": 0.45,
+      "WetnessInfluence": 1.0
+    },
+    {
+      "Name": "MI_Road_Markings",
+      "Parent": "M_Master_Road",
+      "BaseColor": [0.96, 0.96, 0.92, 1.0],
+      "Roughness": 0.65,
+      "Metallic": 0.0,
+      "NormalStrength": 0.5,
+      "WetnessInfluence": 0.9
+    },
+    {
+      "Name": "MI_Concrete_Sidewalk",
+      "Parent": "M_Master_Concrete",
+      "BaseColor": [0.68, 0.66, 0.64, 1.0],
+      "Roughness": 0.78,
+      "Metallic": 0.0,
+      "NormalStrength": 1.1,
+      "WetnessInfluence": 0.8
+    },
+    {
+      "Name": "MI_Concrete_Curbs",
+      "Parent": "M_Master_Concrete",
+      "BaseColor": [0.58, 0.56, 0.54, 1.0],
+      "Roughness": 0.80,
+      "Metallic": 0.0,
+      "NormalStrength": 1.2,
+      "WetnessInfluence": 0.95
+    },
+    {
+      "Name": "MI_Building_Brick",
+      "Parent": "M_Master_Building",
+      "BaseColor": [0.55, 0.22, 0.16, 1.0],
+      "Roughness": 0.85,
+      "Metallic": 0.0,
+      "NormalStrength": 1.4,
+      "WetnessInfluence": 0.6
+    },
+    {
+      "Name": "MI_Building_PaintedConcrete",
+      "Parent": "M_Master_Building",
+      "BaseColor": [0.72, 0.70, 0.68, 1.0],
+      "Roughness": 0.68,
+      "Metallic": 0.0,
+      "NormalStrength": 0.8,
+      "WetnessInfluence": 0.5
+    },
+    {
+      "Name": "MI_Glass_Storefront",
+      "Parent": "M_Master_Glass",
+      "BaseColor": [0.88, 0.94, 0.98, 0.3],
+      "Roughness": 0.06,
+      "Metallic": 0.05,
+      "NormalStrength": 0.15,
+      "WetnessInfluence": 0.2
+    },
+    {
+      "Name": "MI_Metal_PolesAndBoxes",
+      "Parent": "M_Master_Metal",
+      "BaseColor": [0.85, 0.85, 0.88, 1.0],
+      "Roughness": 0.30,
+      "Metallic": 0.95,
+      "NormalStrength": 0.7,
+      "WetnessInfluence": 0.4
+    }
+  ]
+}

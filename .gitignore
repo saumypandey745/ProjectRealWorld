@@ -1,0 +1,22 @@
+# Unreal Engine .gitignore
+Binaries/*
+Plugins/*/Binaries/*
+Intermediate/*
+Plugins/*/Intermediate/*
+Saved/*
+DerivedDataCache/*
+Build/*
+
+# Visual Studio / IDE files
+.vs/
+*.sln
+*.suo
+*.user
+*.code-workspace
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+*.log
