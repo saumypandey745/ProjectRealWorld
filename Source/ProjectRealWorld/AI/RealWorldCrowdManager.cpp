@@ -1,5 +1,6 @@
 #include "AI/RealWorldCrowdManager.h"
 #include "AI/RealWorldNPCCharacter.h"
+#include "Platform/RealWorldPlatformSubsystem.h"
 #include "Engine/World.h"
 
 ARealWorldCrowdManager::ARealWorldCrowdManager()
@@ -20,6 +21,15 @@ ARealWorldCrowdManager::ARealWorldCrowdManager()
 void ARealWorldCrowdManager::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (URealWorldPlatformSubsystem* PlatformSub = GI->GetSubsystem<URealWorldPlatformSubsystem>())
+		{
+			TargetCrowdCount = PlatformSub->GetScaledCrowdBudget();
+		}
+	}
+
 	SpawnCityBlockCrowd();
 }
 
@@ -45,24 +55,25 @@ void ARealWorldCrowdManager::SpawnCityBlockCrowd()
 
 	// Define 24 structured spawn positions across sidewalks, benches, crosswalks, and store
 	const TArray<ENPCArchetype> ArchetypeDistribution = {
+		ENPCArchetype::ShopWorker, ENPCArchetype::ShopWorker, // Dedicated store clerks inside
 		ENPCArchetype::CivilianMale, ENPCArchetype::CivilianFemale,
 		ENPCArchetype::Business, ENPCArchetype::Casual,
-		ENPCArchetype::CivilianMale, ENPCArchetype::CivilianFemale,
-		ENPCArchetype::Police, ENPCArchetype::MunicipalWorker,
-		ENPCArchetype::CivilianMale, ENPCArchetype::CivilianFemale,
-		ENPCArchetype::Business, ENPCArchetype::Casual,
-		ENPCArchetype::CivilianMale, ENPCArchetype::CivilianFemale,
 		ENPCArchetype::Police, ENPCArchetype::Security,
 		ENPCArchetype::CivilianMale, ENPCArchetype::CivilianFemale,
 		ENPCArchetype::Business, ENPCArchetype::Casual,
-		ENPCArchetype::ShopWorker, ENPCArchetype::ShopWorker, // 2 dedicated store clerks inside
+		ENPCArchetype::CivilianMale, ENPCArchetype::CivilianFemale,
+		ENPCArchetype::MunicipalWorker, ENPCArchetype::Casual,
+		ENPCArchetype::CivilianMale, ENPCArchetype::CivilianFemale,
+		ENPCArchetype::Business, ENPCArchetype::Casual,
+		ENPCArchetype::CivilianMale, ENPCArchetype::CivilianFemale,
 		ENPCArchetype::CivilianMale, ENPCArchetype::CivilianFemale
 	};
 
 	const float NorthY = 820.0f;
 	const float SouthY = -820.0f;
+	const int32 CountToSpawn = FMath::Clamp(TargetCrowdCount, 4, ArchetypeDistribution.Num());
 
-	for (int32 i = 0; i < ArchetypeDistribution.Num(); ++i)
+	for (int32 i = 0; i < CountToSpawn; ++i)
 	{
 		FVector SpawnLoc = FVector::ZeroVector;
 		FRotator SpawnRot = FRotator::ZeroRotator;

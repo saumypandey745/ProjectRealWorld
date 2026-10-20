@@ -33,17 +33,26 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD|Debug")
 	bool bShowDebugOverlay = true;
 
+	/** Toggle touch controls overlay force-display (for editor mobile preview) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD|Mobile")
+	bool bForceShowTouchControls = false;
+
 protected:
 	virtual void BeginPlay() override;
 
-	void DrawMinimalVitals(ARealWorldCharacter* Char, ARealWorldPlayerState* PS);
-	void DrawVehicleHUD(ARealWorldVehicleBase* Vehicle);
-	void DrawWantedIndicator(int32 WantedLevel);
+	void DrawMinimalVitals(ARealWorldCharacter* Char, ARealWorldPlayerState* PS, float UIScale, float SafeInsetX);
+	void DrawVehicleHUD(ARealWorldVehicleBase* Vehicle, float UIScale, float SafeInsetX);
+	void DrawWantedIndicator(int32 WantedLevel, float UIScale, float SafeInsetX);
 	void DrawInteractionReticle();
-	void DrawMissionDisplay();
+	void DrawMissionDisplay(float UIScale, float SafeInsetX);
+
+	// --- Mobile Touch Controls ---
+	void DrawMobileTouchControls(bool bIsInVehicle, float UIScale, float SafeInsetX);
+	void DrawMobileVirtualJoystick(const FVector2D& Center, float Radius);
+	void DrawMobileActionButton(const FVector2D& Position, float Radius, const FString& Label, const FLinearColor& Color, bool bIsSubAction = false);
 
 #if !UE_BUILD_SHIPPING
-	void DrawDevelopmentDebugOverlay(ARealWorldCharacter* Char, ARealWorldPlayerState* PS);
+	void DrawDevelopmentDebugOverlay(ARealWorldCharacter* Char, ARealWorldPlayerState* PS, float UIScale, float SafeInsetX);
 #endif
 
 private:

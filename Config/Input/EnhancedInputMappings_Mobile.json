@@ -1,0 +1,90 @@
+{
+  "Description": "Project RealWorld - Mobile Touch Enhanced Input Schema and Mapping Contexts",
+  "Platform": "Mobile (Android / iOS Touch)",
+  "VirtualTouchControls": {
+    "LeftQuadrant": {
+      "Type": "VirtualJoystick",
+      "ActionTarget": "IA_Move",
+      "RadiusRatio": 0.18,
+      "DeadZone": 0.08,
+      "CenterNormalized": { "X": 0.15, "Y": 0.78 },
+      "Description": "Dynamic floating virtual thumbstick for 2D character and vehicle steering"
+    },
+    "RightQuadrant": {
+      "Type": "TouchLookZone",
+      "ActionTarget": "IA_Look",
+      "Sensitivity": 1.25,
+      "AreaNormalized": { "MinX": 0.45, "MaxX": 1.0, "MinY": 0.0, "MaxY": 0.75 },
+      "Description": "Free touch swipe zone for third-person camera rotation and aiming"
+    },
+    "ActionButtons": [
+      {
+        "Name": "Btn_Sprint",
+        "ActionTarget": "IA_Sprint",
+        "Type": "DigitalHold",
+        "Anchor": "BottomRight",
+        "NormalizedOffset": { "X": -0.22, "Y": -0.10 },
+        "Icon": "Sprint_Icon"
+      },
+      {
+        "Name": "Btn_Jump",
+        "ActionTarget": "IA_Jump",
+        "Type": "DigitalPress",
+        "Anchor": "BottomRight",
+        "NormalizedOffset": { "X": -0.08, "Y": -0.16 },
+        "Icon": "Jump_Icon"
+      },
+      {
+        "Name": "Btn_Crouch",
+        "ActionTarget": "IA_Crouch",
+        "Type": "DigitalToggle",
+        "Anchor": "BottomRight",
+        "NormalizedOffset": { "X": -0.14, "Y": -0.06 },
+        "Icon": "Crouch_Icon"
+      },
+      {
+        "Name": "Btn_Interact",
+        "ActionTarget": "IA_Interact",
+        "Type": "DigitalPress",
+        "Anchor": "CenterRight",
+        "NormalizedOffset": { "X": -0.12, "Y": 0.0 },
+        "Icon": "Interact_Icon"
+      },
+      {
+        "Name": "Btn_Attack",
+        "ActionTarget": "IA_Attack",
+        "Type": "DigitalPress",
+        "Anchor": "BottomRight",
+        "NormalizedOffset": { "X": -0.06, "Y": -0.28 },
+        "Icon": "Attack_Icon"
+      },
+      {
+        "Name": "Btn_VehicleEnterExit",
+        "ActionTarget": "IA_ExitVehicle",
+        "Type": "DigitalPress",
+        "Anchor": "CenterRight",
+        "NormalizedOffset": { "X": -0.20, "Y": 0.0 },
+        "Icon": "VehicleDoor_Icon"
+      }
+    ],
+    "VehiclePedals": {
+      "ThrottlePedal": {
+        "ActionTarget": "IA_ThrottleBrake",
+        "AxisValue": 1.0,
+        "Anchor": "BottomRight",
+        "NormalizedOffset": { "X": -0.06, "Y": -0.14 }
+      },
+      "BrakeReversePedal": {
+        "ActionTarget": "IA_ThrottleBrake",
+        "AxisValue": -1.0,
+        "Anchor": "BottomRight",
+        "NormalizedOffset": { "X": -0.16, "Y": -0.10 }
+      },
+      "HandbrakeButton": {
+        "ActionTarget": "IA_Handbrake",
+        "Anchor": "BottomRight",
+        "NormalizedOffset": { "X": -0.12, "Y": -0.26 }
+      }
+    }
+  }
+}

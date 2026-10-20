@@ -1,6 +1,7 @@
 #include "Vehicles/RealWorldTrafficManager.h"
 #include "Vehicles/RealWorldVehicleBase.h"
 #include "Character/RealWorldCharacter.h"
+#include "Platform/RealWorldPlatformSubsystem.h"
 #include "Components/SplineComponent.h"
 #include "Engine/World.h"
 #include "CollisionQueryParams.h"
@@ -32,6 +33,17 @@ ARealWorldTrafficManager::ARealWorldTrafficManager()
 void ARealWorldTrafficManager::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (URealWorldPlatformSubsystem* PlatformSub = GI->GetSubsystem<URealWorldPlatformSubsystem>())
+		{
+			const float Scale = PlatformSub->GetScaledDrawDistanceMultiplier();
+			MinSpawnDistance *= Scale;
+			MaxSpawnDistance *= Scale;
+			DespawnDistance *= Scale;
+		}
+	}
 }
 
 void ARealWorldTrafficManager::Tick(float DeltaTime)
@@ -95,6 +107,14 @@ void ARealWorldTrafficManager::UpdateTrafficSignals(float DeltaTime)
 
 int32 ARealWorldTrafficManager::GetMaxActiveVehiclesForDensity() const
 {
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (URealWorldPlatformSubsystem* PlatformSub = GI->GetSubsystem<URealWorldPlatformSubsystem>())
+		{
+			return PlatformSub->GetScaledTrafficDensity();
+		}
+	}
+
 	switch (DensitySetting)
 	{
 	case ETrafficDensity::Off: return 0;
