@@ -55,7 +55,7 @@ struct FCrimeEvent
 	float DetectionConfidence = 0.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Crime")
-	TArray<TWeakObjectPtr<ARealWorldNPCCharacter>> Witnesses;
+	TArray<TObjectPtr<ARealWorldNPCCharacter>> Witnesses;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crime")
 	bool bReportedToPolice = false;

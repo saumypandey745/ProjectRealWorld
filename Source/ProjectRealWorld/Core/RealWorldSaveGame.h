@@ -45,11 +45,11 @@ class PROJECTREALWORLD_API URealWorldSaveGame : public USaveGame
 public:
 	URealWorldSaveGame();
 
-	static const uint32 CURRENT_SAVE_VERSION = 2;
+	static const int32 CURRENT_SAVE_VERSION = 2;
 
 	/** Version flag for backwards-compatible migrations */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SaveData")
-	uint32 SaveVersion = CURRENT_SAVE_VERSION;
+	int32 SaveVersion = CURRENT_SAVE_VERSION;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SaveData")
 	FString SaveSlotName = TEXT("Slot_01");
