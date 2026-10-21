@@ -276,6 +276,7 @@ protected:
 	void Input_AimStarted();
 	void Input_AimStopped();
 	void Input_ReloadStarted();
+	void Input_VaultStarted();
 
 	void UpdateLocomotionState(float DeltaTime);
 	void UpdateCameraTransform(float DeltaTime);

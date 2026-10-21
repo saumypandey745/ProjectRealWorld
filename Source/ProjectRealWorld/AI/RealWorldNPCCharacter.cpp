@@ -261,7 +261,7 @@ void ARealWorldNPCCharacter::ReactToCollision(AActor* CollidingActor, const FVec
 {
 	if (CurrentState == ENPCState::DEAD) return;
 
-	SetFacialEmotion(EFacialEmotionState::Anger);
+	SetFacialEmotion(EFacialEmotionState::Angry);
 
 	// Push back and stumble momentarily
 	if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())

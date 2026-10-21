@@ -136,7 +136,7 @@ void UDynamicWorldEventSubsystem::EvaluateAmbientEventSpawning(float DeltaTime)
 		}
 		if (UWeatherSubsystem* WeatherSub = World->GetSubsystem<UWeatherSubsystem>())
 		{
-			Rain = WeatherSub->RainIntensity;
+			Rain = WeatherSub->CurrentProperties.RainIntensity;
 		}
 	}
 

@@ -27,7 +27,6 @@ public class ProjectRealWorld : ModuleRules
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {
-			"PCG",
 			"RenderCore",
 			"RHI"
 		});

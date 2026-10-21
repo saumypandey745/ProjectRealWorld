@@ -44,7 +44,6 @@ void ARealWorldPlayerController::SetInputPlatformMode(bool bUseMobileTouch)
 		SetInputMode(InputMode);
 		bShowMouseCursor = false;
 		bEnableTouchEvents = true;
-		bEnableTouchOverlaps = true;
 	}
 	else
 	{

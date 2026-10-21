@@ -62,7 +62,9 @@ void URealWorldPlatformSubsystem::DetectPlatformAndCapabilities()
 
 	if (GEngine && GEngine->GameViewport)
 	{
-		GEngine->GameViewport->GetViewportSize(HardwareInfo.ScreenResolution);
+		FVector2D ViewportSize = FVector2D::ZeroVector;
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+		HardwareInfo.ScreenResolution = FIntPoint(FMath::RoundToInt(ViewportSize.X), FMath::RoundToInt(ViewportSize.Y));
 		if (HardwareInfo.ScreenResolution.Y > 0)
 		{
 			HardwareInfo.AspectRatio = static_cast<float>(HardwareInfo.ScreenResolution.X) / static_cast<float>(HardwareInfo.ScreenResolution.Y);

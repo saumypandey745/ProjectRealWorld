@@ -19,7 +19,7 @@ ARealWorldAtmosphereController::ARealWorldAtmosphereController()
 	SunLight = CreateDefaultSubobject<UDirectionalLightComponent>(TEXT("SunLight"));
 	SunLight->SetupAttachment(RootComp);
 	SunLight->SetIntensity(110000.0f); // Lux
-	SunLight->bUsedAsAtmosphereSunLight = true;
+	SunLight->bAtmosphereSunLight = true;
 	SunLight->AtmosphereSunLightIndex = 0;
 	SunLight->bEnableLightShaftBloom = true;
 	SunLight->CastShadows = true;
@@ -28,7 +28,7 @@ ARealWorldAtmosphereController::ARealWorldAtmosphereController()
 	MoonLight = CreateDefaultSubobject<UDirectionalLightComponent>(TEXT("MoonLight"));
 	MoonLight->SetupAttachment(RootComp);
 	MoonLight->SetIntensity(0.5f);
-	MoonLight->bUsedAsAtmosphereSunLight = true;
+	MoonLight->bAtmosphereSunLight = true;
 	MoonLight->AtmosphereSunLightIndex = 1;
 	MoonLight->SetLightColor(FLinearColor(0.65f, 0.75f, 0.95f));
 	MoonLight->CastShadows = true;

@@ -203,7 +203,7 @@ void ARealWorldCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 	if (InputConfig->IA_Vault)
 	{
-		EnhancedInputComponent->BindAction(InputConfig->IA_Vault, ETriggerEvent::Started, this, &ARealWorldCharacter::TryExecuteVaultOrMantle);
+		EnhancedInputComponent->BindAction(InputConfig->IA_Vault, ETriggerEvent::Started, this, &ARealWorldCharacter::Input_VaultStarted);
 	}
 }
 
@@ -362,6 +362,11 @@ void ARealWorldCharacter::Input_ReloadStarted()
 	{
 		CombatComponent->ReloadCurrentWeapon();
 	}
+}
+
+void ARealWorldCharacter::Input_VaultStarted()
+{
+	TryExecuteVaultOrMantle();
 }
 
 void ARealWorldCharacter::SetAimingState(bool bNewAiming)

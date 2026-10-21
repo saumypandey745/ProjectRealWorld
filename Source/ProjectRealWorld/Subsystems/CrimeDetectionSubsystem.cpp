@@ -23,7 +23,7 @@ void UCrimeDetectionSubsystem::Tick(float DeltaTime)
 	float RainIntensity = 0.0f;
 	if (UWeatherSubsystem* Weather = GetWorld()->GetSubsystem<UWeatherSubsystem>())
 	{
-		RainIntensity = Weather->CurrentWeatherState.RainIntensity;
+		RainIntensity = Weather->CurrentProperties.RainIntensity;
 	}
 
 	// 1. Process pending 911 civilian witness calls
@@ -114,7 +114,7 @@ void UCrimeDetectionSubsystem::RecordCrime(ECrimeType CrimeType, FVector Locatio
 	float RainIntensity = 0.0f;
 	if (UWeatherSubsystem* Weather = GetWorld()->GetSubsystem<UWeatherSubsystem>())
 	{
-		RainIntensity = Weather->CurrentWeatherState.RainIntensity;
+		RainIntensity = Weather->CurrentProperties.RainIntensity;
 	}
 
 	UPoliceWantedSubsystem* PoliceSubsystem = GetWorld()->GetSubsystem<UPoliceWantedSubsystem>();
