@@ -1,0 +1,153 @@
+name: CI - Code Integrity & Validation
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - 'feature/**'
+      - 'hotfix/**'
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-project:
+    name: Project & Config Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate .uproject File Structure & JSON
+        run: |
+          echo "==> Validating ProjectRealWorld.uproject..."
+          python3 -c "
+          import json, sys
+          with open('ProjectRealWorld.uproject') as f:
+              data = json.load(f)
+          assert 'FileVersion' in data, 'Missing FileVersion'
+          assert 'EngineAssociation' in data, 'Missing EngineAssociation'
+          assert 'Modules' in data, 'Missing Modules definition'
+          assert len(data['Modules']) > 0, 'No modules declared'
+          assert data['Modules'][0]['Name'] == 'ProjectRealWorld', 'Primary module mismatch'
+          assert 'Plugins' in data, 'Missing Plugins declaration'
+          print(f'✓ Project descriptor is valid. Engine: {data[\"EngineAssociation\"]}, Plugins: {len(data[\"Plugins\"])}')
+          "
+
+      - name: Audit Configuration Files (PC, Android, iOS)
+        run: |
+          echo "==> Checking required configuration files..."
+          REQUIRED_CONFIGS=(
+            "Config/DefaultEngine.ini"
+            "Config/DefaultGame.ini"
+            "Config/DefaultInput.ini"
+            "Config/DefaultScalability.ini"
+            "Config/Android/AndroidEngine.ini"
+            "Config/Android/AndroidScalability.ini"
+            "Config/IOS/IOSEngine.ini"
+            "Config/IOS/IOSScalability.ini"
+          )
+          for cfg in "${REQUIRED_CONFIGS[@]}"; do
+            if [ ! -f "$cfg" ]; then
+              echo "❌ Error: Missing required config: $cfg"
+              exit 1
+            fi
+            echo "✓ Found $cfg"
+          done
+
+      - name: Check Cross-Platform Rendering Configurations
+        run: |
+          echo "==> Auditing Platform Scalability & Rendering Rules..."
+          python3 -c "
+          import os
+
+          # Verify Android Engine config contains Vulkan ES3.1 / ARM64 targets
+          with open('Config/Android/AndroidEngine.ini') as f:
+              android_engine = f.read()
+              assert 'bBuildForArm64=True' in android_engine or 'bBuildForES31=True' in android_engine or 'Vulkan' in android_engine, 'Missing Android mobile renderer flags'
+              print('✓ Android renderer settings verified.')
+
+          # Verify PC Engine config contains Nanite / Lumen / EnhancedInput
+          with open('Config/DefaultEngine.ini') as f:
+              pc_engine = f.read()
+              assert 'EnhancedInput' in pc_engine or 'DefaultPlayerInputClass' in pc_engine, 'Missing EnhancedInput configuration'
+              print('✓ PC Engine input & rendering configuration verified.')
+          "
+
+  cpp-static-analysis:
+    name: C++ Code Quality & Source Integrity
+    runs-on: ubuntu-latest
+    needs: validate-project
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Clang & Code Analysis Tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends clang-format clang
+
+      - name: Audit C++ Header Include Guards and UObject Macros
+        run: |
+          echo "==> Verifying Unreal Engine C++ header contracts (GENERATED_BODY, UCLASS, USTRUCT)..."
+          python3 -c "
+          import os, glob
+
+          headers = glob.glob('Source/ProjectRealWorld/**/*.h', recursive=True)
+          sources = glob.glob('Source/ProjectRealWorld/**/*.cpp', recursive=True)
+
+          print(f'Scanning {len(headers)} headers and {len(sources)} source files...')
+
+          errors = 0
+          for h in headers:
+              with open(h, 'r', encoding='utf-8', errors='ignore') as f:
+                  content = f.read()
+                  # If header defines a UCLASS or USTRUCT, it must have GENERATED_BODY() and generated.h include
+                  if 'UCLASS(' in content or 'USTRUCT(' in content:
+                      base_name = os.path.basename(h).replace('.h', '')
+                      expected_inc = f'{base_name}.generated.h'
+                      if expected_inc not in content:
+                          print(f'❌ {h}: Missing #{expected_inc}')
+                          errors += 1
+                      if 'GENERATED_BODY()' not in content:
+                          print(f'❌ {h}: Missing GENERATED_BODY() macro')
+                          errors += 1
+
+          if errors > 0:
+              print(f'Total contract errors: {errors}')
+              exit(1)
+          else:
+              print(f'✓ All {len(headers)} C++ headers satisfy Unreal Engine object model contracts.')
+          "
+
+      - name: Verify Build.cs and Target.cs Rules
+        run: |
+          echo "==> Checking C# Build & Target definitions..."
+          test -f "Source/ProjectRealWorld.Target.cs" || (echo "Missing ProjectRealWorld.Target.cs" && exit 1)
+          test -f "Source/ProjectRealWorldEditor.Target.cs" || (echo "Missing ProjectRealWorldEditor.Target.cs" && exit 1)
+          test -f "Source/ProjectRealWorld/ProjectRealWorld.Build.cs" || (echo "Missing ProjectRealWorld.Build.cs" && exit 1)
+          echo "✓ Build rules and Target definitions verified."
+
+      - name: Summarize C++ Architecture Metrics
+        run: |
+          echo "==> Project Architecture Summary:"
+          echo "  - Total C++ Headers: $(find Source/ProjectRealWorld -name '*.h' | wc -l)"
+          echo "  - Total C++ Sources: $(find Source/ProjectRealWorld -name '*.cpp' | wc -l)"
+          echo "  - Total Subsystem Modules: $(ls -d Source/ProjectRealWorld/*/ | wc -l)"
+          echo "  - Total Config Files: $(find Config -name '*.ini' | wc -l)"

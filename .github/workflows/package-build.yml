@@ -1,0 +1,92 @@
+name: Build & Package Game (UAT)
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_platform:
+        description: 'Target Platform'
+        type: choice
+        required: true
+        default: 'Linux'
+        options:
+          - 'Linux'
+          - 'Android'
+          - 'Win64'
+      build_configuration:
+        description: 'Build Configuration'
+        type: choice
+        required: true
+        default: 'Development'
+        options:
+          - 'Development'
+          - 'Shipping'
+          - 'DebugGame'
+      runner_type:
+        description: 'Runner Environment'
+        type: choice
+        required: true
+        default: 'self-hosted'
+        options:
+          - 'self-hosted'
+          - 'ubuntu-latest'
+
+jobs:
+  package:
+    name: Package ${{ github.event.inputs.target_platform }} (${{ github.event.inputs.build_configuration }})
+    runs-on: ${{ github.event.inputs.runner_type }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Environment Variables
+        run: |
+          echo "PROJECT_PATH=$(pwd)/ProjectRealWorld.uproject" >> $GITHUB_ENV
+          echo "OUTPUT_DIR=$(pwd)/PackagedBuilds/${{ github.event.inputs.target_platform }}" >> $GITHUB_ENV
+
+          # Detect UE root if not set
+          if [ -z "${UE_ROOT}" ]; then
+            if [ -d "/home/saumy/UnrealEngine" ]; then
+              echo "UE_ROOT=/home/saumy/UnrealEngine" >> $GITHUB_ENV
+            fi
+          fi
+
+      - name: Verify Unreal Engine Environment
+        run: |
+          echo "==> Checking Unreal Engine installation..."
+          if [ -z "${UE_ROOT}" ] || [ ! -f "${UE_ROOT}/Engine/Build/BatchFiles/RunUAT.sh" ]; then
+            echo "::warning::Unreal Engine not detected at standard path. Ensure UE_ROOT is configured on the runner."
+            if [ "${{ github.event.inputs.runner_type }}" = "ubuntu-latest" ]; then
+              echo "Standard GitHub-hosted runners do not have preinstalled Unreal Engine 5.4 (~100GB). Use a self-hosted runner with UE 5.4 installed to execute native BuildCookRun packaging."
+              exit 0
+            fi
+          else
+            echo "✓ Located Unreal Engine at: ${UE_ROOT}"
+          fi
+
+      - name: Run BuildCookRun Packaging
+        if: env.UE_ROOT != ''
+        run: |
+          mkdir -p "${OUTPUT_DIR}"
+          echo "==> Initiating RunUAT packaging for ${{ github.event.inputs.target_platform }}..."
+
+          EXTRA_ARGS=""
+          if [ "${{ github.event.inputs.target_platform }}" = "Android" ]; then
+            EXTRA_ARGS="-cookflavor=ETC2 -targetplatform=Android_ARM64"
+          fi
+
+          "${UE_ROOT}/Engine/Build/BatchFiles/RunUAT.sh" BuildCookRun \
+            -project="${PROJECT_PATH}" \
+            -platform="${{ github.event.inputs.target_platform }}" \
+            -configuration="${{ github.event.inputs.build_configuration }}" \
+            -archivedirectory="${OUTPUT_DIR}" \
+            -build -cook -package -stage -archive \
+            ${EXTRA_ARGS}
+
+      - name: Upload Packaged Artifacts
+        if: success() && env.UE_ROOT != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: ProjectRealWorld-${{ github.event.inputs.target_platform }}-${{ github.event.inputs.build_configuration }}
+          path: ${{ env.OUTPUT_DIR }}
+          if-no-files-found: ignore

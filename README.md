@@ -8,6 +8,7 @@
 [![Unreal Engine](https://img.shields.io/badge/Unreal%20Engine-5.4%2B-black?style=for-the-badge&logo=unrealengine&logoColor=white)](https://www.unrealengine.com)
 [![Language](https://img.shields.io/badge/Language-C%2B%2B17-blue?style=for-the-badge&logo=cplusplus)](https://en.cppreference.com/w/cpp/17)
 [![Platform](https://img.shields.io/badge/Platform-PC%20%7C%20Android-green?style=for-the-badge&logo=android)](https://developer.android.com)
+[![CI](https://github.com/saumypandey745/ProjectRealWorld/actions/workflows/ci.yml/badge.svg)](https://github.com/saumypandey745/ProjectRealWorld/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](LICENSE)
 [![Build](https://img.shields.io/badge/Build-Development%20Editor-orange?style=for-the-badge)]()
 
@@ -273,6 +274,36 @@ After the Editor launches:
 1. Open map: `Content/Maps/L_WorldPartition_City`
 2. Press **Alt + P** (Play In Editor)
 3. Test player controls, NPC interactions, vehicles, crime system
+
+---
+
+## 🚀 CI/CD & Automated Deployment
+
+Project RealWorld features a complete GitHub Actions CI/CD and local packaging automation suite located in `.github/workflows/` and `Scripts/deploy.sh`.
+
+### 1. Automated GitHub Workflows
+
+| Workflow | Trigger | Description |
+|---|---|---|
+| **CI - Code Integrity & Validation** (`ci.yml`) | Push to `main`, PRs | Validates `.uproject` JSON, audits platform configs (`AndroidEngine.ini`, `IOSEngine.ini`, `DefaultScalability.ini`), and verifies all 45 C++ headers satisfy Unreal Engine object model contracts. |
+| **CD - Automated Release & Deployment** (`release.yml`) | Tag `v*` or Manual Dispatch | Creates clean distribution archives (ZIP/TAR.GZ), generates SHA-256 checksums, and publishes official GitHub Releases. |
+| **Build & Package Game** (`package-build.yml`) | Manual Dispatch (`workflow_dispatch`) | Automates RunUAT `BuildCookRun` for Linux, Android ARM64, or Win64 across Development and Shipping configurations. |
+
+### 2. Local Deployment Helper (`Scripts/deploy.sh`)
+
+Use the included CLI script for local validation, packaging, and triggering releases:
+
+```bash
+# 1. Run local CI pre-commit verification
+./Scripts/deploy.sh check
+
+# 2. Package game builds locally via RunUAT (Linux or Android)
+./Scripts/deploy.sh package Linux Development
+./Scripts/deploy.sh package Android Shipping
+
+# 3. Trigger an automated GitHub Release
+./Scripts/deploy.sh release v1.0.0
+```
 
 ---
 
