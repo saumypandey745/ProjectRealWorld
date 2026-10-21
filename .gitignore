@@ -6,6 +6,7 @@ Plugins/*/Intermediate/*
 Saved/*
 DerivedDataCache/*
 Build/*
+PackagedBuilds/*
 
 # Visual Studio / IDE files
 .vs/

@@ -44,6 +44,13 @@ jobs:
           print('✓ Project descriptor valid.')
           "
 
+      - name: Build Android APK
+        run: |
+          echo "==> Packaging Android APK..."
+          chmod +x Scripts/package_apk.sh
+          ./Scripts/package_apk.sh
+          cp PackagedBuilds/Android/ProjectRealWorld.apk ./ProjectRealWorld.apk
+
       - name: Package Multi-Platform Live Distributions
         run: |
           echo "==> Creating Live distribution packages for PC and Mobile..."
@@ -141,6 +148,7 @@ jobs:
           prerelease: false
           make_latest: true
           files: |
+            ProjectRealWorld.apk
             ProjectRealWorld-PC-Live.zip
             ProjectRealWorld-Android-Live.zip
             ProjectRealWorld-Universal-Live.zip

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+<title>Project RealWorld - Mobile Edition</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+  body, html { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+  
+  /* Top HUD */
+  #top-hud {
+    position: absolute; top: 12px; left: 16px; right: 16px; z-index: 10;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    pointer-events: none;
+  }
+  .hud-badge {
+    background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.15); border-radius: 12px;
+    padding: 8px 14px; color: #fff; font-size: 13px; font-weight: 600;
+  }
+  .stars { color: #f59e0b; font-size: 18px; letter-spacing: 2px; text-shadow: 0 0 10px rgba(245, 158, 11, 0.6); }
+  .star-inactive { color: rgba(255,255,255,0.2); }
+  
+  /* Mini Map */
+  #minimap {
+    width: 90px; height: 90px; border-radius: 50%;
+    background: rgba(15, 23, 42, 0.85); border: 2px solid #3b82f6;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.5); overflow: hidden; position: relative;
+  }
+  #map-player {
+    position: absolute; width: 10px; height: 10px; background: #ef4444;
+    border: 2px solid #fff; border-radius: 50%; top: 40px; left: 40px;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Bottom Controls HUD */
+  #controls {
+    position: absolute; bottom: 16px; left: 16px; right: 16px; z-index: 10;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    pointer-events: none;
+  }
+  .touch-btn {
+    pointer-events: auto; display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; color: #fff; font-weight: bold; border: 2px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(10px); box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+    active: transform: scale(0.92);
+  }
+  
+  /* Left Controls: Steering */
+  .left-controls { display: flex; gap: 14px; align-items: center; }
+  .btn-steer { width: 68px; height: 68px; background: rgba(30, 41, 59, 0.8); font-size: 24px; }
+  
+  /* Right Controls: Gas / Brake / Action */
+  .right-controls { display: flex; gap: 14px; align-items: flex-end; }
+  .btn-gas { width: 78px; height: 78px; background: rgba(16, 185, 129, 0.85); font-size: 15px; }
+  .btn-brake { width: 66px; height: 66px; background: rgba(239, 68, 68, 0.85); font-size: 14px; }
+  .btn-action { width: 56px; height: 56px; background: rgba(59, 130, 246, 0.85); font-size: 12px; margin-bottom: 12px; }
+
+  /* Speedometer */
+  #speed-cluster {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 16px; padding: 6px 18px; text-align: center; color: #fff;
+    pointer-events: none;
+  }
+  #speed-val { font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums; color: #38bdf8; }
+  #speed-unit { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+
+  /* Notification Toast */
+  #toast {
+    position: absolute; top: 70px; left: 50%; transform: translateX(-50%);
+    background: rgba(15, 23, 42, 0.9); border: 1px solid #38bdf8;
+    color: #fff; padding: 8px 18px; border-radius: 20px; font-size: 12px;
+    z-index: 20; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<div id="canvas-container"></div>
+
+<div id="top-hud">
+  <div style="display: flex; gap: 10px; align-items: center;">
+    <div id="minimap"><div id="map-player"></div></div>
+    <div class="hud-badge">
+      <div style="font-size: 11px; color: #94a3b8;">MISSION</div>
+      <div>Late Delivery</div>
+      <div style="color: #10b981; font-size: 11px;">$1,500 CASH</div>
+    </div>
+  </div>
+  
+  <div class="hud-badge" style="text-align: right;">
+    <div style="font-size: 11px; color: #94a3b8;">WANTED LEVEL</div>
+    <div id="wanted-stars" class="stars">
+      ★<span class="star-inactive">★★★★</span>
+    </div>
+  </div>
+</div>
+
+<div id="toast">Press GAS (W/▲) to accelerate</div>
+
+<div id="speed-cluster">
+  <div id="speed-val">0</div>
+  <div id="speed-unit">KM/H · GEAR 1</div>
+</div>
+
+<div id="controls">
+  <div class="left-controls">
+    <div class="touch-btn btn-steer" id="btn-left">◀</div>
+    <div class="touch-btn btn-steer" id="btn-right">▶</div>
+  </div>
+
+  <div class="right-controls">
+    <div class="touch-btn btn-action" id="btn-vehicle">EXIT<br>CAR</div>
+    <div class="touch-btn btn-brake" id="btn-brake">BRAKE</div>
+    <div class="touch-btn btn-gas" id="btn-gas">GAS</div>
+  </div>
+</div>
+
+<!-- Three.js (Procedural Canvas 3D Engine) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+  // Fallback if offline
+  if (typeof THREE === 'undefined') {
+    document.write('<script src="three.min.js"><\/script>');
+  }
+
+  // --- 3D Scene Initialization ---
+  const container = document.getElementById('canvas-container');
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0f172a);
+  scene.fog = new THREE.FogExp2(0x0f172a, 0.015);
+
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  container.appendChild(renderer.domElement);
+
+  // Lighting
+  const hemiLight = new THREE.HemisphereLight(0xffffff, 0x334155, 0.6);
+  scene.add(hemiLight);
+
+  const dirLight = new THREE.DirectionalLight(0xffedd5, 1.2);
+  dirLight.position.set(50, 80, 40);
+  dirLight.castShadow = true;
+  scene.add(dirLight);
+
+  // --- Procedural City Grid ---
+  const groundGeo = new THREE.PlaneGeometry(1000, 1000);
+  const groundMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
+  const ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.rotation.x = -Math.PI / 2;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  // Roads & Buildings
+  const buildings = [];
+  const roadMat = new THREE.MeshLambertMaterial({ color: 0x0f172a });
+  const bldgMat = new THREE.MeshLambertMaterial({ color: 0x334155 });
+  const windowMat = new THREE.MeshBasicMaterial({ color: 0xfef08a });
+
+  for (let x = -200; x <= 200; x += 50) {
+    for (let z = -200; z <= 200; z += 50) {
+      if (Math.abs(x) > 20 || Math.abs(z) > 20) {
+        const height = 20 + Math.random() * 60;
+        const bldgGeo = new THREE.BoxGeometry(32, height, 32);
+        const bldg = new THREE.Mesh(bldgGeo, bldgMat);
+        bldg.position.set(x + (Math.random() - 0.5) * 5, height / 2, z + (Math.random() - 0.5) * 5);
+        bldg.castShadow = true;
+        scene.add(bldg);
+        buildings.push(bldg);
+      }
+    }
+  }
+
+  // --- Player Vehicle ---
+  const car = new THREE.Group();
+  
+  // Body
+  const bodyGeo = new THREE.BoxGeometry(2.4, 0.9, 4.8);
+  const bodyMat = new THREE.MeshLambertMaterial({ color: 0xef4444 });
+  const carBody = new THREE.Mesh(bodyGeo, bodyMat);
+  carBody.position.y = 0.7;
+  carBody.castShadow = true;
+  car.add(carBody);
+
+  // Cabin
+  const cabinGeo = new THREE.BoxGeometry(2.0, 0.7, 2.4);
+  const cabinMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
+  const cabin = new THREE.Mesh(cabinGeo, cabinMat);
+  cabin.position.set(0, 1.4, -0.3);
+  car.add(cabin);
+
+  // Wheels
+  const wheelGeo = new THREE.CylinderGeometry(0.45, 0.45, 0.4, 16);
+  const wheelMat = new THREE.MeshLambertMaterial({ color: 0x000000 });
+  const wheelPositions = [
+    [-1.2, 0.45, 1.4], [1.2, 0.45, 1.4],
+    [-1.2, 0.45, -1.4], [1.2, 0.45, -1.4]
+  ];
+  wheelPositions.forEach(pos => {
+    const w = new THREE.Mesh(wheelGeo, wheelMat);
+    w.rotation.z = Math.PI / 2;
+    w.position.set(...pos);
+    car.add(w);
+  });
+
+  // Headlights
+  const lightL = new THREE.PointLight(0xfff7ed, 1.5, 30);
+  lightL.position.set(-0.8, 0.7, 2.5);
+  const lightR = lightL.clone();
+  lightR.position.set(0.8, 0.7, 2.5);
+  car.add(lightL, lightR);
+
+  scene.add(car);
+  car.position.set(0, 0, 0);
+
+  // --- Physics & Driving State ---
+  let speed = 0;
+  let maxSpeed = 1.4;
+  let acceleration = 0.035;
+  let friction = 0.98;
+  let steerAngle = 0;
+  let carHeading = 0;
+
+  const input = { gas: false, brake: false, left: false, right: false };
+
+  // Touch Controls
+  function bindTouch(id, key) {
+    const el = document.getElementById(id);
+    const triggerStart = (e) => { e.preventDefault(); input[key] = true; vibrate(15); };
+    const triggerEnd = (e) => { e.preventDefault(); input[key] = false; };
+    el.addEventListener('touchstart', triggerStart, { passive: false });
+    el.addEventListener('touchend', triggerEnd, { passive: false });
+    el.addEventListener('mousedown', triggerStart);
+    el.addEventListener('mouseup', triggerEnd);
+  }
+
+  bindTouch('btn-gas', 'gas');
+  bindTouch('btn-brake', 'brake');
+  bindTouch('btn-left', 'left');
+  bindTouch('btn-right', 'right');
+
+  // Keyboard Fallback
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'w' || e.key === 'ArrowUp') input.gas = true;
+    if (e.key === 's' || e.key === 'ArrowDown') input.brake = true;
+    if (e.key === 'a' || e.key === 'ArrowLeft') input.left = true;
+    if (e.key === 'd' || e.key === 'ArrowRight') input.right = true;
+  });
+  window.addEventListener('keyup', (e) => {
+    if (e.key === 'w' || e.key === 'ArrowUp') input.gas = false;
+    if (e.key === 's' || e.key === 'ArrowDown') input.brake = false;
+    if (e.key === 'a' || e.key === 'ArrowLeft') input.left = false;
+    if (e.key === 'd' || e.key === 'ArrowRight') input.right = false;
+  });
+
+  function vibrate(ms) {
+    if (window.AndroidNative && window.AndroidNative.vibrate) {
+      window.AndroidNative.vibrate(ms);
+    } else if (navigator.vibrate) {
+      navigator.vibrate(ms);
+    }
+  }
+
+  // Speedometer DOM
+  const speedEl = document.getElementById('speed-val');
+  const speedUnitEl = document.getElementById('speed-unit');
+
+  // Toast
+  const toast = document.getElementById('toast');
+  toast.style.opacity = '1';
+  setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+
+  // --- Game Loop ---
+  function animate() {
+    requestAnimationFrame(animate);
+
+    // Acceleration & Braking
+    if (input.gas) {
+      speed += acceleration;
+      if (speed > maxSpeed) speed = maxSpeed;
+    } else if (input.brake) {
+      speed -= acceleration * 1.5;
+      if (speed < -maxSpeed * 0.4) speed = -maxSpeed * 0.4;
+    } else {
+      speed *= friction;
+      if (Math.abs(speed) < 0.002) speed = 0;
+    }
+
+    // Steering
+    if (Math.abs(speed) > 0.01) {
+      const turnMultiplier = speed > 0 ? 1 : -1;
+      if (input.left) carHeading += 0.04 * turnMultiplier;
+      if (input.right) carHeading -= 0.04 * turnMultiplier;
+    }
+
+    // Move Car
+    car.position.x += Math.sin(carHeading) * speed;
+    car.position.z += Math.cos(carHeading) * speed;
+    car.rotation.y = carHeading;
+
+    // Camera Follow
+    const camOffset = new THREE.Vector3(
+      Math.sin(carHeading) * -12,
+      6,
+      Math.cos(carHeading) * -12
+    );
+    camera.position.lerp(car.position.clone().add(camOffset), 0.1);
+    camera.lookAt(car.position.x, car.position.y + 1.2, car.position.z);
+
+    // Update Speedometer
+    const kmh = Math.round(Math.abs(speed) * 90);
+    speedEl.innerText = kmh;
+    const gear = kmh < 2 ? 'N' : kmh < 30 ? '1' : kmh < 60 ? '2' : kmh < 90 ? '3' : '4';
+    speedUnitEl.innerText = `KM/H · GEAR ${gear}`;
+
+    renderer.render(scene, camera);
+  }
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  animate();
+</script>
+</body>
+</html>
