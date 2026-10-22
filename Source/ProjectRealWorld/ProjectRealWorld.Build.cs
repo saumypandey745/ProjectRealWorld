@@ -21,7 +21,7 @@ public class ProjectRealWorld : ModuleRules
 			"NavigationSystem",
 			"GameplayTasks",
 			"StateTreeModule",
-			"GameplayStateTree",
+			"GameplayStateTreeModule",
 
 			// ── Physics & Vehicles ────────────────────────────────────────────
 			"ChaosVehicles",

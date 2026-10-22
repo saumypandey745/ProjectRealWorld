@@ -174,7 +174,7 @@ protected:
     void ApplyRecoilToController(ARealWorldCharacter* Instigator) const;
     void ApplyCameraShake(ARealWorldCharacter* Instigator) const;
 
-#if WITH_EDITOR
+#if WITH_EDITORONLY_DATA
     UPROPERTY(EditAnywhere, Category = "Debug")
     bool bDrawDebugTrace = false;
 #endif

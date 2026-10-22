@@ -40,7 +40,15 @@
 		},
 		{
 			"Name": "PCG",
-			"Enabled": false
+			"Enabled": true
+		},
+		{
+			"Name": "CommonUI",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayAbilities",
+			"Enabled": true
 		},
 		{
 			"Name": "MotionWarping",

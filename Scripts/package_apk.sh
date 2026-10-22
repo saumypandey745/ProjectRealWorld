@@ -29,8 +29,8 @@ if [ ! -f "${UBT}" ]; then
     exit 1
 fi
 
-echo "==> 1. Compiling ProjectRealWorld Native ARM64 Binaries with UBT..."
-"${UBT}" ProjectRealWorld Android Development \
+echo "==> 1. Compiling ProjectRealWorld Native ARM64 Binaries with UBT (Shipping)..."
+"${UBT}" ProjectRealWorld Android Shipping \
     -Project="${PROJECT_ROOT}/ProjectRealWorld.uproject" \
     -NoMutex
 

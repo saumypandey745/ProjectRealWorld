@@ -138,7 +138,7 @@ bool ARealWorldWeaponBase::PerformBallisticTrace(ARealWorldCharacter* Instigator
         ECollisionChannel::ECC_Visibility, QueryParams
     );
 
-#if WITH_EDITOR
+#if WITH_EDITORONLY_DATA
     if (bDrawDebugTrace)
     {
         DrawDebugLine(GetWorld(), CameraLocation, bHit ? OutHit.ImpactPoint : TraceEnd,
