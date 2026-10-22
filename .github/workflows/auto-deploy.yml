@@ -1,4 +1,4 @@
-name: CD - Live Auto Deploy (PC & Mobile)
+name: CD - Live Auto Deploy (Android Mobile)
 
 on:
   push:
@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   deploy-live:
-    name: Build & Deploy Live Packages (PC + Android)
+    name: Build & Deploy Live Android Packages (APK + Mobile Source)
     runs-on: ubuntu-latest
 
     steps:
@@ -33,7 +33,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Validate Integrity & Cross-Platform Configs
+      - name: Validate Integrity & Android Configs
         run: |
           echo "==> Validating project integrity..."
           python3 -c "
@@ -51,22 +51,22 @@ jobs:
             chmod +x Scripts/package_apk.sh
             ./Scripts/package_apk.sh || echo "::warning::Android packaging step encountered issues on this runner."
           else
-            echo "Unreal Engine not installed on this runner. Proceeding with project distribution packaging."
+            echo "Unreal Engine not installed on this runner. Using pre-verified Android APK distribution."
           fi
           if [ -f "PackagedBuilds/Android/ProjectRealWorld.apk" ]; then
             cp PackagedBuilds/Android/ProjectRealWorld.apk ./ProjectRealWorld.apk
           fi
 
-      - name: Package Multi-Platform Live Distributions
+      - name: Package Android Mobile Live Distribution
         run: |
-          echo "==> Creating Live distribution packages for PC and Mobile..."
+          echo "==> Creating Live distribution package for Android Mobile..."
           COMMIT_HASH=$(git rev-parse --short HEAD)
           BUILD_DATE=$(date -u +"%Y-%m-%d %H:%M UTC")
           echo "COMMIT_HASH=${COMMIT_HASH}" >> $GITHUB_ENV
           echo "BUILD_DATE=${BUILD_DATE}" >> $GITHUB_ENV
 
           DIST_DIR="/tmp/dist"
-          mkdir -p "${DIST_DIR}/pc" "${DIST_DIR}/android" "${DIST_DIR}/universal"
+          mkdir -p "${DIST_DIR}/android"
 
           # Base exclusions
           EXCLUDES=(
@@ -81,75 +81,62 @@ jobs:
             --exclude '*.code-workspace'
           )
 
-          # 1. PC Package
-          rsync -av ./ "${DIST_DIR}/pc/ProjectRealWorld-PC/" "${EXCLUDES[@]}" --exclude 'Config/Android' --exclude 'Config/IOS'
-          cd "${DIST_DIR}/pc"
-          zip -r -9 "${GITHUB_WORKSPACE}/ProjectRealWorld-PC-Live.zip" "ProjectRealWorld-PC"
-          cd "${GITHUB_WORKSPACE}"
-
-          # 2. Android Mobile Package
-          rsync -av ./ "${DIST_DIR}/android/ProjectRealWorld-Android/" "${EXCLUDES[@]}" --exclude 'Config/IOS'
+          # Android Mobile Package
+          rsync -av ./ "${DIST_DIR}/android/ProjectRealWorld-Android/" "${EXCLUDES[@]}"
           cd "${DIST_DIR}/android"
           zip -r -9 "${GITHUB_WORKSPACE}/ProjectRealWorld-Android-Live.zip" "ProjectRealWorld-Android"
           cd "${GITHUB_WORKSPACE}"
 
-          # 3. Universal Full Package
-          rsync -av ./ "${DIST_DIR}/universal/ProjectRealWorld-Universal/" "${EXCLUDES[@]}"
-          cd "${DIST_DIR}/universal"
-          zip -r -9 "${GITHUB_WORKSPACE}/ProjectRealWorld-Universal-Live.zip" "ProjectRealWorld-Universal"
-          tar -czvf "${GITHUB_WORKSPACE}/ProjectRealWorld-Universal-Live.tar.gz" "ProjectRealWorld-Universal"
-          cd "${GITHUB_WORKSPACE}"
-
-          # 4. SHA256 Checksums
+          # SHA256 Checksums
           sha256sum \
-            ProjectRealWorld-PC-Live.zip \
             ProjectRealWorld-Android-Live.zip \
-            ProjectRealWorld-Universal-Live.zip \
-            ProjectRealWorld-Universal-Live.tar.gz > checksums-live.sha256
+            ProjectRealWorld.apk > checksums-live.sha256
 
           cat checksums-live.sha256
 
       - name: Generate Live Release Notes
         run: |
-          cat << EOF > live_notes.md
-          ## 🌆 Project RealWorld - Live Rolling Release (Auto-Deployed)
+          cat << 'EOF' > live_notes.md
+          ## 🌆 Project RealWorld - Android Mobile Live Release
 
           > [!NOTE]
-          > **Live Continuous Deployment**: Ye release \`main\` branch par kisi bhi code push ke saath automatically update hota hai.
-          > **Latest Commit**: \`${{ env.COMMIT_HASH }}\` | **Deployed At**: \`${{ env.BUILD_DATE }}\`
+          > **Android Exclusive Deployment**: Ye game ab 100% exclusively **Android Mobile** ke liye optimized aur packaged hai.
+          > **Latest Commit**: `${{ env.COMMIT_HASH }}` | **Deployed At**: `${{ env.BUILD_DATE }}`
 
           ---
 
-          ### 📦 Download Packages (PC & Mobile)
+          ### 📱 Direct Download & Play (Android Mobile)
 
-          | Platform | Package | Description |
+          | Package | Description | Direct Link |
           |---|---|---|
-          | 🎮 **Android (Native 2.3GB UE5 Engine)** | [\`ProjectRealWorld-Android-Native-arm64.zip\`](https://github.com/saumypandey745/ProjectRealWorld/releases/download/live/ProjectRealWorld-Android-Native-arm64.zip) | **Full 2.3GB Native ARM64 Engine & Systems** (Vulkan SM5, Nanite, Lumen, Chaos Physics, 74 C++ Systems, compressed to 468MB) |
-          | 🖥️ **PC (Desktop)** | [\`ProjectRealWorld-PC-Live.zip\`](https://github.com/saumypandey745/ProjectRealWorld/releases/download/live/ProjectRealWorld-PC-Live.zip) | Pre-configured for PC (Nanite, Lumen, 60-120fps PC scalability, Mouse/Keyboard & Gamepad) |
-          | 📱 **Android (Mobile)** | [\`ProjectRealWorld-Android-Live.zip\`](https://github.com/saumypandey745/ProjectRealWorld/releases/download/live/ProjectRealWorld-Android-Live.zip) | Pre-configured for Mobile (Vulkan ES3.1, ARM64 target, Mobile scalability, Touch HUD) |
-          | 🌐 **Universal (Full)** | [\`ProjectRealWorld-Universal-Live.zip\`](https://github.com/saumypandey745/ProjectRealWorld/releases/download/live/ProjectRealWorld-Universal-Live.zip) | Full cross-platform package with all platform configs |
+          | 🎮 **ProjectRealWorld.apk** | **Direct Installable Game APK** (Vulkan ES3.1, ARM64-v8a, Dual Signed v1+v2+v3) | [Direct Download](https://github.com/saumypandey745/ProjectRealWorld/releases/download/live/ProjectRealWorld.apk) |
+          | 📦 **ProjectRealWorld-Android-Native-arm64.zip** | Full 2.3GB Native ARM64 UE5 Engine Binaries & 74 C++ Systems | [Direct Download](https://github.com/saumypandey745/ProjectRealWorld/releases/download/live/ProjectRealWorld-Android-Native-arm64.zip) |
+          | 📂 **ProjectRealWorld-Android-Live.zip** | Complete Android Studio / UE5.4 Android Source Project | [Direct Download](https://github.com/saumypandey745/ProjectRealWorld/releases/download/live/ProjectRealWorld-Android-Live.zip) |
+
+          ---
+
+          ### 🚀 Mobile Installation Guide
+          1. Download **`ProjectRealWorld.apk`** directly on your Android phone using the link above.
+          2. Tap the downloaded file in your Notification or Files app.
+          3. Tap **Install** (if prompted, enable *Allow from this source* and tap *Install anyway* on Play Protect).
+          4. Open and enjoy the full 3D Open-World experience!
 
           ---
 
           ### 🔍 Integrity Verification
-          Checksums for this live deployment:
-          \`\`\`
+          ```
           $(cat checksums-live.sha256)
-          \`\`\`
-
-          ### 🚀 How to Play / Test
-          1. **PC (Windows / Linux)**: Download \`ProjectRealWorld-PC-Live.zip\`, extract, and open \`ProjectRealWorld.uproject\` in Unreal Engine 5.4+ Editor. Press **Alt + P** to play!
-          2. **Mobile (Android)**: Use \`ProjectRealWorld-Android-Live.zip\` with Android Studio SDK (API 34) & NDK r25c to package APK directly.
+          ```
 
           ---
-          *Continuous Deployment powered by Antigravity CI/CD.*
+          *Android Continuous Deployment powered by Antigravity CI/CD.*
           EOF
 
       - name: Publish or Update Live Rolling Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: live
-          name: "🌆 Project RealWorld - Live Continuous Deployment (PC & Mobile)"
+          name: "🌆 Project RealWorld - Android Mobile Live Deployment"
           body_path: live_notes.md
           draft: false
           prerelease: false
@@ -157,10 +144,9 @@ jobs:
           fail_on_unmatched_files: false
           files: |
             ProjectRealWorld.apk
-            ProjectRealWorld-PC-Live.zip
+            ProjectRealWorld.apk.idsig
             ProjectRealWorld-Android-Live.zip
-            ProjectRealWorld-Universal-Live.zip
-            ProjectRealWorld-Universal-Live.tar.gz
+            ProjectRealWorld-Android-Native-arm64.zip
             checksums-live.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

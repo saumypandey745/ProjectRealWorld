@@ -2,7 +2,10 @@
 	"FileVersion": 3,
 	"EngineAssociation": "5.4",
 	"Category": "Games",
-	"Description": "Project RealWorld - AAA Open World Architecture in Unreal Engine 5",
+	"Description": "Project RealWorld - AAA Open World Mobile Simulation on Android",
+	"TargetPlatforms": [
+		"Android"
+	],
 	"Modules": [
 		{
 			"Name": "ProjectRealWorld",

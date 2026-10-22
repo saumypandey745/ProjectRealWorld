@@ -1,4 +1,4 @@
-name: Build & Package Game (UAT)
+name: Build & Package Android APK (UAT)
 
 on:
   workflow_dispatch:
@@ -7,20 +7,17 @@ on:
         description: 'Target Platform'
         type: choice
         required: true
-        default: 'Linux'
+        default: 'Android'
         options:
-          - 'Linux'
           - 'Android'
-          - 'Win64'
       build_configuration:
         description: 'Build Configuration'
         type: choice
         required: true
-        default: 'Development'
+        default: 'Shipping'
         options:
-          - 'Development'
           - 'Shipping'
-          - 'DebugGame'
+          - 'Development'
       runner_type:
         description: 'Runner Environment'
         type: choice

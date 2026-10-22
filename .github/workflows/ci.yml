@@ -49,9 +49,9 @@ jobs:
           print(f'✓ Project descriptor is valid. Engine: {data[\"EngineAssociation\"]}, Plugins: {len(data[\"Plugins\"])}')
           "
 
-      - name: Audit Configuration Files (PC, Android, iOS)
+      - name: Audit Android Configuration Files
         run: |
-          echo "==> Checking required configuration files..."
+          echo "==> Checking required Android configuration files..."
           REQUIRED_CONFIGS=(
             "Config/DefaultEngine.ini"
             "Config/DefaultGame.ini"
@@ -59,8 +59,6 @@ jobs:
             "Config/DefaultScalability.ini"
             "Config/Android/AndroidEngine.ini"
             "Config/Android/AndroidScalability.ini"
-            "Config/IOS/IOSEngine.ini"
-            "Config/IOS/IOSScalability.ini"
           )
           for cfg in "${REQUIRED_CONFIGS[@]}"; do
             if [ ! -f "$cfg" ]; then
@@ -70,9 +68,9 @@ jobs:
             echo "✓ Found $cfg"
           done
 
-      - name: Check Cross-Platform Rendering Configurations
+      - name: Check Android Mobile Rendering Configurations
         run: |
-          echo "==> Auditing Platform Scalability & Rendering Rules..."
+          echo "==> Auditing Android Platform Scalability & Rendering Rules..."
           python3 -c "
           import os
 
@@ -82,11 +80,11 @@ jobs:
               assert 'bBuildForArm64=True' in android_engine or 'bBuildForES31=True' in android_engine or 'Vulkan' in android_engine, 'Missing Android mobile renderer flags'
               print('✓ Android renderer settings verified.')
 
-          # Verify PC Engine config contains Nanite / Lumen / EnhancedInput
+          # Verify EnhancedInput configuration
           with open('Config/DefaultEngine.ini') as f:
-              pc_engine = f.read()
-              assert 'EnhancedInput' in pc_engine or 'DefaultPlayerInputClass' in pc_engine, 'Missing EnhancedInput configuration'
-              print('✓ PC Engine input & rendering configuration verified.')
+              engine_ini = f.read()
+              assert 'EnhancedInput' in engine_ini or 'DefaultPlayerInputClass' in engine_ini, 'Missing EnhancedInput configuration'
+              print('✓ Mobile input & rendering configuration verified.')
           "
 
   cpp-static-analysis:

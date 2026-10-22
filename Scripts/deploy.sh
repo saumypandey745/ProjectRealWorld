@@ -25,16 +25,15 @@ usage() {
     echo "Usage: $0 [COMMAND] [OPTIONS]"
     echo ""
     echo "Commands:"
-    echo "  check                Validate project files, C++ contracts, and configurations"
-    echo "  package <platform>   Package project (Linux or Android) using RunUAT"
+    echo "  check                Validate Android project files, C++ contracts, and configurations"
+    echo "  package [Config]     Package Android ARM64 APK via RunUAT (Development/Shipping)"
     echo "  release <version>    Create a git tag and push to trigger automated GitHub Release"
     echo "  ci                   Run full local CI pipeline checks before pushing"
     echo "  help                 Display this help message"
     echo ""
     echo "Examples:"
     echo "  $0 check"
-    echo "  $0 package Linux"
-    echo "  $0 package Android"
+    echo "  $0 package Shipping"
     echo "  $0 release v1.0.0"
     exit 1
 }
@@ -62,7 +61,7 @@ print(f'   ✓ UProject valid (Engine: {data[\"EngineAssociation\"]}, Plugins: {
         "Config/DefaultInput.ini"
         "Config/DefaultScalability.ini"
         "Config/Android/AndroidEngine.ini"
-        "Config/IOS/IOSEngine.ini"
+        "Config/Android/AndroidScalability.ini"
     )
     for cfg in "${CONFIGS[@]}"; do
         if [ ! -f "$cfg" ]; then
@@ -70,7 +69,7 @@ print(f'   ✓ UProject valid (Engine: {data[\"EngineAssociation\"]}, Plugins: {
             exit 1
         fi
     done
-    echo "   ✓ All essential platform configs present."
+    echo "   ✓ All essential Android platform configs present."
 
     # 3. Check C++ headers & GENERATED_BODY()
     echo "3. Checking C++ source contracts..."
@@ -95,11 +94,11 @@ else:
 }
 
 cmd_package() {
-    PLATFORM="${1:-Linux}"
-    CONFIG="${2:-Development}"
-    OUTPUT_DIR="${PROJECT_ROOT}/PackagedBuilds/${PLATFORM}"
+    PLATFORM="Android"
+    CONFIG="${1:-Shipping}"
+    OUTPUT_DIR="${PROJECT_ROOT}/PackagedBuilds/Android"
 
-    echo -e "${YELLOW}==> Packaging for platform: ${PLATFORM} (${CONFIG})...${NC}"
+    echo -e "${YELLOW}==> Packaging Android Mobile Game (${CONFIG} - ARM64)...${NC}"
 
     if [ ! -f "${UE_ROOT}/Engine/Build/BatchFiles/RunUAT.sh" ]; then
         echo -e "${RED}❌ RunUAT.sh not found at ${UE_ROOT}/Engine/Build/BatchFiles/RunUAT.sh${NC}"
@@ -109,21 +108,18 @@ cmd_package() {
 
     mkdir -p "${OUTPUT_DIR}"
 
-    EXTRA_FLAGS=""
-    if [ "${PLATFORM}" == "Android" ]; then
-        EXTRA_FLAGS="-cookflavor=ETC2 -targetplatform=Android_ARM64"
-    fi
+    EXTRA_FLAGS="-cookflavor=ETC2 -targetplatform=Android_ARM64"
 
-    echo "Executing RunUAT..."
+    echo "Executing RunUAT for Android..."
     "${UE_ROOT}/Engine/Build/BatchFiles/RunUAT.sh" BuildCookRun \
         -project="${UPROJECT_FILE}" \
-        -platform="${PLATFORM}" \
+        -platform="Android" \
         -configuration="${CONFIG}" \
         -archivedirectory="${OUTPUT_DIR}" \
         -build -cook -package -stage -archive \
         ${EXTRA_FLAGS}
 
-    echo -e "${GREEN}✓ Packaging complete! Output stored in: ${OUTPUT_DIR}${NC}"
+    echo -e "${GREEN}✓ Android Packaging complete! Output stored in: ${OUTPUT_DIR}${NC}"
 }
 
 cmd_release() {
