@@ -23,6 +23,11 @@ Phase: 1 — Core Systems Complete  |  Tier: S (GTA5-class)  |  Last updated: 20
 | Foot IK & Weapon Montages | `Combat/RealWorldWeaponBase.h/.cpp` | ✅ Full — Character Fire/Reload/Equip montages, IK Rig |
 | GTA5 In-Game Smartphone | `UI/RealWorldSmartphoneWidget.h/.cpp` | ✅ Full — Quick Save, Contacts/Calling, GPS, Maze Bank, Camera |
 | Story Mission 1 (Car Chase) | `Subsystems/RealWorldMissionCarChase.h/.cpp` | ✅ Full — Depot -> Car Enter -> 2★ Police Ambush -> Harbor -> $2,500 |
+| Vehicle Radio & Scanner | `Audio/RealWorldRadioSubsystem.h/.cpp` | ✅ Full — 6 stations, station wheel, police scanner dispatch |
+| Ammu-Nation Gun Store | `Stores/RealWorldAmmuNationStore.h/.cpp` | ✅ Full — weapons catalog, attachments, armor, cash register |
+| Pay 'n' Spray Garage | `Stores/RealWorldPayNSprayGarage.h/.cpp` | ✅ Full — auto-repair, paint palette, wanted level wipeout |
+| Mission 2: Harbor Vault Heist | `Subsystems/RealWorldMissionHeist.h/.cpp` | ✅ Full — CCTV hack, drill breach, $50,000 loot, 4★ SWAT escape |
+| NPC Contextual Voice Barks | `Audio/RealWorldAudioBarkComponent.h/.cpp` | ✅ Full — honk insults, gun surrender, police halt orders |
 
 ### Existing Systems (Previous Sessions)
 - `PlayerController` — Enhanced Input, mobile touch, vehicle mode switching
