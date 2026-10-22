@@ -13,6 +13,7 @@ class USoundBase;
 class UMaterialInterface;
 class UCameraShakeBase;
 class UDamageType;
+class UAnimMontage;
 
 UENUM(BlueprintType)
 enum class EWeaponClass : uint8
@@ -35,6 +36,7 @@ class PROJECTREALWORLD_API ARealWorldWeaponBase : public AActor
 
 public:
     ARealWorldWeaponBase();
+    virtual ~ARealWorldWeaponBase();
 
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaTime) override;
@@ -52,6 +54,16 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon|Config")
     FName EjectSocketName = TEXT("CasingEject");
+
+    // ─── Animations ──────────────────────────────────────────────────────────
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon|Animations")
+    TObjectPtr<UAnimMontage> CharacterFireMontage;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon|Animations")
+    TObjectPtr<UAnimMontage> CharacterReloadMontage;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon|Animations")
+    TObjectPtr<UAnimMontage> CharacterEquipMontage;
 
     // ─── Stats ───────────────────────────────────────────────────────────────
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon|Stats")

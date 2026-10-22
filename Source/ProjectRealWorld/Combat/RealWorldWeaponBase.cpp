@@ -96,6 +96,12 @@ bool ARealWorldWeaponBase::FireWeapon(ARealWorldCharacter* InstigatorPawn)
     ApplyRecoilToController(InstigatorPawn);
     ApplyCameraShake(InstigatorPawn);
 
+    // Play upper body fire recoil montage
+    if (InstigatorPawn && CharacterFireMontage)
+    {
+        InstigatorPawn->PlayAnimMontage(CharacterFireMontage);
+    }
+
     OnWeaponFired.Broadcast(CurrentAmmoInMag, TotalReserveAmmo);
     return true;
 }
@@ -329,6 +335,14 @@ bool ARealWorldWeaponBase::Reload()
     if (ReloadSound)
     {
         UGameplayStatics::PlaySoundAtLocation(this, ReloadSound, GetActorLocation());
+    }
+
+    if (ARealWorldCharacter* Char = Cast<ARealWorldCharacter>(GetOwner()))
+    {
+        if (CharacterReloadMontage)
+        {
+            Char->PlayAnimMontage(CharacterReloadMontage);
+        }
     }
 
     OnWeaponReloaded.Broadcast(CurrentAmmoInMag, TotalReserveAmmo);
