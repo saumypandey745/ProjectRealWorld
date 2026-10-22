@@ -161,6 +161,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "VehicleDamage|Actions")
     void Repair(float Amount);
 
+    UFUNCTION(BlueprintCallable, Category = "VehicleDamage|Actions")
+    void RepairVehicle();
+
     UFUNCTION(BlueprintPure, Category = "VehicleDamage|State")
     float GetHealthPercent() const { return CurrentHealth / MaxHealth; }
 

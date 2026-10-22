@@ -63,8 +63,8 @@ void ARealWorldMissionCarChase::Tick(float DeltaTime)
 
         case ECarChaseStage::EnterVehicle:
             // Detect if player is in a vehicle
-            if (PlayerCharacter->GetAttachParentActor() != nullptr ||
-                Cast<ARealWorldVehicleBase>(PlayerCharacter->GetVehicleMovementComponent() ? PlayerCharacter : nullptr))
+            if (PlayerCharacter->GetAttachParentActor() != nullptr &&
+                PlayerCharacter->GetAttachParentActor()->IsA<ARealWorldVehicleBase>())
             {
                 AdvanceStage(ECarChaseStage::PoliceAmbush);
             }

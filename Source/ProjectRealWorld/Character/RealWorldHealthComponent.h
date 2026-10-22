@@ -109,6 +109,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Health|Actions")
     void Revive(float ReviveHealth = 50.0f);
 
+    UFUNCTION(BlueprintCallable, Category = "Health|Actions")
+    void ApplyRagdollImpulse(const FVector& Impulse, const FName& HitBone = TEXT("pelvis"));
+
     // ─── Queries ─────────────────────────────────────────────────────────────
     UFUNCTION(BlueprintPure, Category = "Health|State")
     bool IsAlive() const { return HealthState == EHealthState::Alive; }
@@ -138,6 +141,10 @@ public:
 private:
     float LastDamageTime = 0.0f;
     FTimerHandle RegenTimerHandle;
+
+    UFUNCTION()
+    void TakeDamage_Internal(AActor* DamagedActor, float Damage,
+                             const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
     void StartRegenTimer();
     void TickRegen();

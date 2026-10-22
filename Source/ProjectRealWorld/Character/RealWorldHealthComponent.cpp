@@ -8,7 +8,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Engine/DamageEvents.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
 
@@ -63,8 +65,8 @@ float URealWorldHealthComponent::TakeDamage(float DamageAmount, const FDamageEve
 
     // ── Blood VFX ─────────────────────────────────────────────────────────────
     FVector ImpactPoint  = GetOwner()->GetActorLocation();
-    FVector ImpactNormal = -DamageCauser ? (ImpactPoint - DamageCauser->GetActorLocation()).GetSafeNormal()
-                                         : FVector::UpVector;
+    FVector ImpactNormal = DamageCauser ? (ImpactPoint - DamageCauser->GetActorLocation()).GetSafeNormal()
+                                        : FVector::UpVector;
 
     if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
     {
@@ -242,6 +244,27 @@ void URealWorldHealthComponent::TriggerRagdoll(const FVector& ImpactImpulse, con
 
     Character->GetMesh()->SetSimulatePhysics(true);
     Character->GetMesh()->AddImpulseAtLocation(ImpactImpulse, Character->GetActorLocation(), HitBone);
+}
+
+void URealWorldHealthComponent::ApplyRagdollImpulse(const FVector& Impulse, const FName& HitBone)
+{
+    ACharacter* Character = Cast<ACharacter>(GetOwner());
+    if (!Character) return;
+
+    if (Character->GetMesh())
+    {
+        Character->GetMesh()->SetSimulatePhysics(true);
+        Character->GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
+        Character->GetMesh()->AddImpulse(Impulse, HitBone, true);
+    }
+    if (Character->GetCapsuleComponent())
+    {
+        Character->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    }
+    if (Character->GetCharacterMovement())
+    {
+        Character->GetCharacterMovement()->DisableMovement();
+    }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

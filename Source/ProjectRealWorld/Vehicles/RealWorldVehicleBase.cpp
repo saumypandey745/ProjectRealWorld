@@ -426,3 +426,13 @@ void ARealWorldVehicleBase::Interact_Implementation(ARealWorldCharacter* Instiga
 {
 	EnterVehicle(InstigatorCharacter);
 }
+
+void ARealWorldVehicleBase::OpenDoor(int32 DoorIndex)
+{
+	// Vehicle door hinge visual rotation and latch sound
+}
+
+void ARealWorldVehicleBase::CloseDoor(int32 DoorIndex)
+{
+	// Vehicle door latch shut sound
+}

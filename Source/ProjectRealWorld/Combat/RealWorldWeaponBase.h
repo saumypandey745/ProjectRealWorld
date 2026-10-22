@@ -29,14 +29,13 @@ enum class EWeaponClass : uint8
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponFired,   int32, CurrentAmmo, int32, ReserveAmmo);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponReloaded, int32, CurrentAmmo, int32, ReserveAmmo);
 
-UCLASS(Abstract, BlueprintType, Blueprintable)
+UCLASS(BlueprintType, Blueprintable)
 class PROJECTREALWORLD_API ARealWorldWeaponBase : public AActor
 {
     GENERATED_BODY()
 
 public:
     ARealWorldWeaponBase();
-    virtual ~ARealWorldWeaponBase();
 
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaTime) override;

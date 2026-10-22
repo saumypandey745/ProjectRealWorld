@@ -12,6 +12,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/World.h"
 #include "Engine/OverlapResult.h"
+#include "Engine/DamageEvents.h"
 #include "DrawDebugHelpers.h"
 #include "NiagaraFunctionLibrary.h"
 

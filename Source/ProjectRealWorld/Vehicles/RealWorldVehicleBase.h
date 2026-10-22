@@ -148,6 +148,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Vehicle")
 	bool ExitVehicle();
 
+	UFUNCTION(BlueprintCallable, Category = "Vehicle|Doors")
+	void OpenDoor(int32 DoorIndex);
+
+	UFUNCTION(BlueprintCallable, Category = "Vehicle|Doors")
+	void CloseDoor(int32 DoorIndex);
+
 	UFUNCTION(BlueprintCallable, Category = "Vehicle|Damage")
 	void ApplyPhysicalImpactDamage(float ImpulseMagnitude, FVector ImpactPoint);
 

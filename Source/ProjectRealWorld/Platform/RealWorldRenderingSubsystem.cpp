@@ -50,8 +50,8 @@ void URealWorldRenderingSubsystem::Deinitialize()
 // ─────────────────────────────────────────────────────────────────────────────
 void URealWorldRenderingSubsystem::AutoDetectAndApplyOptimalPreset()
 {
-    // Check GPU memory to determine best preset
-    const uint64 GPUMemory = RHIGetAvailableTextureMemory() * 1024ULL; // Convert KB → bytes
+    // Check system/GPU memory to determine best preset
+    const uint64 GPUMemory = FPlatformMemory::GetStats().TotalPhysical;
     const bool bIsMobile   = FPlatformProperties::RequiresCookedData() && PLATFORM_ANDROID;
 
     if (!bIsMobile)
@@ -314,8 +314,8 @@ void URealWorldRenderingSubsystem::ApplyCinematicSettings(const FCinematicPostPr
     PP.DepthOfFieldFocalDistance             = Settings.DOFFocalDistance;
     PP.bOverride_DepthOfFieldFstop           = true;
     PP.DepthOfFieldFstop                     = Settings.DOFAperture;
-    PP.bOverride_DepthOfFieldFocalLength     = true;
-    PP.DepthOfFieldFocalLength               = Settings.DOFFocalLength;
+    PP.bOverride_DepthOfFieldFocalRegion     = true;
+    PP.DepthOfFieldFocalRegion               = Settings.DOFFocalLength;
 
     // Vignette
     PP.bOverride_VignetteIntensity           = true;

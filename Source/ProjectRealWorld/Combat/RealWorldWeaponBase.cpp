@@ -121,7 +121,8 @@ bool ARealWorldWeaponBase::PerformBallisticTrace(ARealWorldCharacter* Instigator
     InstigatorController->GetPlayerViewPoint(CameraLocation, CameraRotation);
 
     // Apply spread (increases when moving, decreases when aiming)
-    const float SpreadMultiplier = Instigator->IsAiming() ? 0.25f : (Instigator->GetVelocity().SizeSquared() > 100.0f ? 2.5f : 1.0f);
+    const bool bAiming = (Instigator->CurrentUpperBodyState == EUpperBodyState::Aiming);
+    const float SpreadMultiplier = bAiming ? 0.25f : (Instigator->GetVelocity().SizeSquared() > 100.0f ? 2.5f : 1.0f);
     const float AppliedSpread   = BaseSpreadDegrees * SpreadMultiplier;
 
     FVector FireDirection = CameraRotation.Vector();

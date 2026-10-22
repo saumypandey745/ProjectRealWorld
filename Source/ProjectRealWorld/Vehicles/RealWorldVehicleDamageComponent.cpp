@@ -280,8 +280,7 @@ void URealWorldVehicleDamageComponent::Explode()
     // Explosion SFX
     if (ExplosionSound)
     {
-        UGameplayStatics::PlaySoundAtLocation(this, ExplosionSound, ExplosionOrigin,
-                                               1.0f, 1.0f, 0.0f, nullptr, nullptr, true);
+        UGameplayStatics::PlaySoundAtLocation(this, ExplosionSound, ExplosionOrigin);
     }
 
     // Radial damage to nearby actors
@@ -340,6 +339,15 @@ void URealWorldVehicleDamageComponent::Repair(float Amount)
         {
             OwnerVehicle->GetMesh()->SetMorphTarget(Morph, 0.0f);
         }
+    }
+}
+
+void URealWorldVehicleDamageComponent::RepairVehicle()
+{
+    Repair(MaxHealth);
+    for (int32 i = 0; i < DamageState.TyreStates.Num(); ++i)
+    {
+        DamageState.TyreStates[i] = ETyreState::Inflated;
     }
 }
 
