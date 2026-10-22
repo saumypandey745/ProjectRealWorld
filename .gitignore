@@ -21,3 +21,7 @@ PackagedBuilds/*
 .DS_Store
 Thumbs.db
 *.log
+
+*.apk
+*.apk.idsig
+*.zip
