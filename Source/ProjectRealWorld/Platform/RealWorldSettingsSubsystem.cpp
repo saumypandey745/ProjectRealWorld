@@ -22,6 +22,60 @@ void URealWorldSettingsSubsystem::SetGraphicsPreset(ERealWorldGraphicsPreset Pre
 	ApplySettingsToEngine();
 }
 
+void URealWorldSettingsSubsystem::SetResolutionMode(ERealWorldResolutionMode NewMode)
+{
+	ActiveSettings.ResolutionMode = NewMode;
+
+	switch (NewMode)
+	{
+	case ERealWorldResolutionMode::Res_720p:
+		ActiveSettings.ResolutionScale = 67.0f;
+		if (GEngine)
+		{
+			GEngine->Exec(GetWorld(), TEXT("r.ScreenPercentage 67"));
+			GEngine->Exec(GetWorld(), TEXT("r.TSR.History.ScreenPercentage 67"));
+			GEngine->Exec(GetWorld(), TEXT("r.TSR.Quality 1"));
+			GEngine->Exec(GetWorld(), TEXT("r.Streaming.MipBias 2"));
+		}
+		break;
+
+	case ERealWorldResolutionMode::Res_1080p:
+		ActiveSettings.ResolutionScale = 100.0f;
+		if (GEngine)
+		{
+			GEngine->Exec(GetWorld(), TEXT("r.ScreenPercentage 100"));
+			GEngine->Exec(GetWorld(), TEXT("r.TSR.History.ScreenPercentage 100"));
+			GEngine->Exec(GetWorld(), TEXT("r.TSR.Quality 2"));
+			GEngine->Exec(GetWorld(), TEXT("r.Streaming.MipBias 1"));
+		}
+		break;
+
+	case ERealWorldResolutionMode::Res_2K:
+		ActiveSettings.ResolutionScale = 133.0f;
+		if (GEngine)
+		{
+			GEngine->Exec(GetWorld(), TEXT("r.ScreenPercentage 133"));
+			GEngine->Exec(GetWorld(), TEXT("r.TSR.History.ScreenPercentage 133"));
+			GEngine->Exec(GetWorld(), TEXT("r.TSR.Quality 3"));
+			GEngine->Exec(GetWorld(), TEXT("r.Streaming.MipBias 0"));
+		}
+		break;
+
+	case ERealWorldResolutionMode::Res_4K:
+		ActiveSettings.ResolutionScale = 200.0f;
+		if (GEngine)
+		{
+			GEngine->Exec(GetWorld(), TEXT("r.ScreenPercentage 200"));
+			GEngine->Exec(GetWorld(), TEXT("r.TSR.History.ScreenPercentage 200"));
+			GEngine->Exec(GetWorld(), TEXT("r.TSR.Quality 4"));
+			GEngine->Exec(GetWorld(), TEXT("r.Streaming.MipBias 0"));
+		}
+		break;
+	}
+
+	ApplySettingsToEngine();
+}
+
 void URealWorldSettingsSubsystem::SetResolutionScale(float NewScale)
 {
 	ActiveSettings.ResolutionScale = FMath::Clamp(NewScale, 50.0f, 150.0f);

@@ -47,6 +47,15 @@ enum class EBatteryThermalMode : uint8
 	BatterySaver UMETA(DisplayName = "Battery Saver")
 };
 
+UENUM(BlueprintType)
+enum class ERealWorldResolutionMode : uint8
+{
+	Res_720p UMETA(DisplayName = "HD (720p) - High Performance"),
+	Res_1080p UMETA(DisplayName = "Full HD (1080p) - Balanced AAA"),
+	Res_2K UMETA(DisplayName = "2K (1440p) - Flagship Visuals"),
+	Res_4K UMETA(DisplayName = "4K (2160p) - Ultra Photorealism")
+};
+
 USTRUCT(BlueprintType)
 struct FPlatformHardwareInfo
 {
@@ -93,6 +102,9 @@ struct FCustomGraphicsSettings
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
 	ERealWorldGraphicsPreset ActivePreset = ERealWorldGraphicsPreset::Auto;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
+	ERealWorldResolutionMode ResolutionMode = ERealWorldResolutionMode::Res_1080p;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
 	int32 ViewDistanceQuality = 2; // 0-3 (or Cine)

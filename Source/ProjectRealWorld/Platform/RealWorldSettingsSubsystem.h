@@ -26,6 +26,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Settings|Preset")
 	void SetGraphicsPreset(ERealWorldGraphicsPreset Preset);
 
+	UFUNCTION(BlueprintCallable, Category = "Settings|Resolution")
+	void SetResolutionMode(ERealWorldResolutionMode NewMode);
+
+	UFUNCTION(BlueprintPure, Category = "Settings|Resolution")
+	ERealWorldResolutionMode GetResolutionMode() const { return ActiveSettings.ResolutionMode; }
+
 	UFUNCTION(BlueprintCallable, Category = "Settings|Quality")
 	void SetResolutionScale(float NewScale);
 
