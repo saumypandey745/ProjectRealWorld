@@ -124,6 +124,7 @@ jobs:
 
           | Platform | Package | Description |
           |---|---|---|
+          | 🎮 **Android (Native 2.3GB UE5 Engine)** | [\`ProjectRealWorld-Android-Native-arm64.zip\`](https://github.com/saumypandey745/ProjectRealWorld/releases/download/live/ProjectRealWorld-Android-Native-arm64.zip) | **Full 2.3GB Native ARM64 Engine & Systems** (Vulkan SM5, Nanite, Lumen, Chaos Physics, 74 C++ Systems, compressed to 468MB) |
           | 🖥️ **PC (Desktop)** | [\`ProjectRealWorld-PC-Live.zip\`](https://github.com/saumypandey745/ProjectRealWorld/releases/download/live/ProjectRealWorld-PC-Live.zip) | Pre-configured for PC (Nanite, Lumen, 60-120fps PC scalability, Mouse/Keyboard & Gamepad) |
           | 📱 **Android (Mobile)** | [\`ProjectRealWorld-Android-Live.zip\`](https://github.com/saumypandey745/ProjectRealWorld/releases/download/live/ProjectRealWorld-Android-Live.zip) | Pre-configured for Mobile (Vulkan ES3.1, ARM64 target, Mobile scalability, Touch HUD) |
           | 🌐 **Universal (Full)** | [\`ProjectRealWorld-Universal-Live.zip\`](https://github.com/saumypandey745/ProjectRealWorld/releases/download/live/ProjectRealWorld-Universal-Live.zip) | Full cross-platform package with all platform configs |
