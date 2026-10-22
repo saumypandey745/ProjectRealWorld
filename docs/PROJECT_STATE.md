@@ -20,6 +20,9 @@ Phase: 1 — Core Systems Complete  |  Tier: S (GTA5-class)  |  Last updated: 20
 | Mobile HUD | `UI/RealWorldMobileHUD.h/.cpp` | ✅ Full — dual joystick, gesture combat, weapon wheel |
 | Android Config | `Config/Android/AndroidEngine.ini` | ✅ Upgraded — Vulkan SM5, Nanite, Lumen, VSM, TSR |
 | Build Dependencies | `ProjectRealWorld.Build.cs` | ✅ Updated — Niagara, GAS, CommonUI, GeometryCore |
+| Foot IK & Weapon Montages | `Combat/RealWorldWeaponBase.h/.cpp` | ✅ Full — Character Fire/Reload/Equip montages, IK Rig |
+| GTA5 In-Game Smartphone | `UI/RealWorldSmartphoneWidget.h/.cpp` | ✅ Full — Quick Save, Contacts/Calling, GPS, Maze Bank, Camera |
+| Story Mission 1 (Car Chase) | `Subsystems/RealWorldMissionCarChase.h/.cpp` | ✅ Full — Depot -> Car Enter -> 2★ Police Ambush -> Harbor -> $2,500 |
 
 ### Existing Systems (Previous Sessions)
 - `PlayerController` — Enhanced Input, mobile touch, vehicle mode switching
