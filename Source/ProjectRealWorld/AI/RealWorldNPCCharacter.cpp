@@ -207,13 +207,26 @@ void ARealWorldNPCCharacter::EvaluateDailySchedule(float CurrentHour)
 
 	if (TargetScheduleState != CurrentState)
 	{
+		// Update navigation destination from schedule entry
+		for (const FNPCDailyScheduleEntry& Entry : DailySchedule)
+		{
+			if (Entry.AssignedState == TargetScheduleState && !Entry.TargetLocation.IsZero())
+			{
+				CurrentScheduleDestination = Entry.TargetLocation;
+				break;
+			}
+		}
 		SetNPCState(TargetScheduleState);
 	}
 }
 
+
 void ARealWorldNPCCharacter::SetNPCState(ENPCState NewState)
 {
 	CurrentState = NewState;
+
+	// Broadcast to AI controller (bound in OnPossess)
+	OnNPCStateChangedDelegate.Broadcast(NewState);
 
 	if (ARealWorldNPCAIController* AIC = Cast<ARealWorldNPCAIController>(GetController()))
 	{
@@ -221,14 +234,19 @@ void ARealWorldNPCCharacter::SetNPCState(ENPCState NewState)
 	}
 }
 
+
 void ARealWorldNPCCharacter::ReactToDanger(FVector DangerSource)
 {
 	if (CurrentState == ENPCState::DEAD) return;
+
+	// Store danger origin so AI controller can compute flee direction
+	LastDangerLocation = DangerSource;
 
 	SetNPCState(ENPCState::FLEEING);
 	SetFacialEmotion(EFacialEmotionState::Fear);
 	GetCharacterMovement()->MaxWalkSpeed = 520.0f; // Panic sprint away from threat
 }
+
 
 void ARealWorldNPCCharacter::ReactToWeather(float RainIntensity)
 {

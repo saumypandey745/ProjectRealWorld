@@ -10,6 +10,9 @@
 
 class USkeletalMeshComponent;
 
+// Delegate so AI controller can bind to state changes
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNPCStateChanged, ENPCState, NewState);
+
 UCLASS()
 class PROJECTREALWORLD_API ARealWorldNPCCharacter : public ACharacter, public IInteractableInterface
 {
@@ -76,6 +79,20 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "NPC|State")
 	void SetNPCState(ENPCState NewState);
+
+	// --- AI Controller Delegate ---
+	UPROPERTY(BlueprintAssignable, Category = "NPC|Events")
+	FOnNPCStateChanged OnNPCStateChangedDelegate;
+
+	// --- Navigation Data (written by EvaluateDailySchedule) ---
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NPC|Navigation")
+	FVector HomeLocation = FVector::ZeroVector;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NPC|Navigation")
+	FVector CurrentScheduleDestination = FVector::ZeroVector;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NPC|Reactions")
+	FVector LastDangerLocation = FVector::ZeroVector;
 
 	UFUNCTION(BlueprintCallable, Category = "NPC|Reactions")
 	void ReactToDanger(FVector DangerSource);

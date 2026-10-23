@@ -64,7 +64,7 @@ struct FMissionDefinition
     int32 GoldHeadshotsRequired = 10;
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMissionStarted, const FString&, MissionTitle);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDirectorMissionStarted, const FString&, MissionTitle);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnMissionFailed, const FString&, MissionTitle, const FString&, FailReason);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnMissionPassed, const FString&, MissionTitle, EMissionMedal, MedalEarned, int32, CashEarned);
 
@@ -108,7 +108,7 @@ public:
 
     // ─── Delegates ───────────────────────────────────────────────────────────
     UPROPERTY(BlueprintAssignable, Category = "MissionDirector|Events")
-    FOnMissionStarted OnMissionStarted;
+    FOnDirectorMissionStarted OnMissionStarted;
 
     UPROPERTY(BlueprintAssignable, Category = "MissionDirector|Events")
     FOnMissionFailed OnMissionFailed;

@@ -90,16 +90,24 @@ EPlatformPerformanceTier URealWorldPlatformSubsystem::DeterminePerformanceTier()
 
 	if (bIsMobile)
 	{
-		// Mobile Tiering based on RAM and CPU core count
-		if (HardwareInfo.TotalSystemMemoryMB >= 7500 && HardwareInfo.PhysicalCores >= 8)
+		// Mobile Tiering — Indian market focus
+		// 4GB RAM phones (actual usable ~3400-3800MB): MobileLow → 30fps smooth
+		// 6GB RAM phones (Snapdragon 7xx): MobileMedium → 45fps
+		// 8GB+ flagship: MobileHigh → 60fps
+		if (HardwareInfo.TotalSystemMemoryMB >= 7000 && HardwareInfo.PhysicalCores >= 8)
 		{
-			return EPlatformPerformanceTier::MobileHigh; // Flagship (Snapdragon 8 Gen 2/3, Apple A16/A17/M-series)
+			return EPlatformPerformanceTier::MobileHigh; // Flagship (Snapdragon 8 Gen 2/3)
 		}
-		else if (HardwareInfo.TotalSystemMemoryMB >= 5500 && HardwareInfo.PhysicalCores >= 6)
+		else if (HardwareInfo.TotalSystemMemoryMB >= 5000 && HardwareInfo.PhysicalCores >= 6)
 		{
-			return EPlatformPerformanceTier::MobileMedium; // Mid-range
+			return EPlatformPerformanceTier::MobileMedium; // 6GB mid-range
 		}
-		return EPlatformPerformanceTier::MobileLow; // Budget entry
+		else if (HardwareInfo.TotalSystemMemoryMB >= 3200)
+		{
+			return EPlatformPerformanceTier::MobileLow; // 4GB — optimized 30fps mode
+		}
+		// Below 3GB — minimum spec warning
+		return EPlatformPerformanceTier::MobileLow;
 	}
 	else
 	{

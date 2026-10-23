@@ -73,7 +73,7 @@ public:
     void UpdateTouchVector(const FVector2D& TouchInput);
 
     UFUNCTION(BlueprintCallable, Category = "WeaponWheel|Actions")
-    void SetSlotData(EWeaponWheelSlot Slot, const FWeaponWheelSlotData& Data);
+    void SetSlotData(EWeaponWheelSlot InSlot, const FWeaponWheelSlotData& Data);
 
     // ─── Queries ─────────────────────────────────────────────────────────────
     UFUNCTION(BlueprintPure, Category = "WeaponWheel|State")
@@ -83,7 +83,7 @@ public:
     EWeaponWheelSlot GetCurrentSelectedSlot() const { return ActiveSlot; }
 
     UFUNCTION(BlueprintPure, Category = "WeaponWheel|State")
-    FWeaponWheelSlotData GetSlotData(EWeaponWheelSlot Slot) const;
+    FWeaponWheelSlotData GetSlotData(EWeaponWheelSlot InSlot) const;
 
     // ─── Delegates ───────────────────────────────────────────────────────────
     UPROPERTY(BlueprintAssignable, Category = "WeaponWheel|Events")

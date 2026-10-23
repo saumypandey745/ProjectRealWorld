@@ -9,8 +9,7 @@
 class UAIPerceptionComponent;
 class UAISenseConfig_Sight;
 class UAISenseConfig_Hearing;
-class UBehaviorTreeComponent;
-class UBlackboardComponent;
+class ARealWorldNPCCharacter;
 
 UCLASS()
 class PROJECTREALWORLD_API ARealWorldNPCAIController : public AAIController
@@ -23,7 +22,7 @@ public:
 	virtual void OnPossess(APawn* InPawn) override;
 
 	/** Handle state changes dispatched from character */
-	UFUNCTION(BlueprintCallable, Category = "AI")
+	UFUNCTION()
 	void OnNPCStateChanged(ENPCState NewState);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Perception")
@@ -44,4 +43,10 @@ protected:
 
 private:
 	void SetupPerception();
+
+	/** Move NPC to a random navmesh point within Radius cm */
+	void MoveToRandomNavMeshPoint(ARealWorldNPCCharacter* NPC, float Radius);
+
+	/** Sprint NPC away from their stored LastDangerLocation */
+	void FleeFromDanger(ARealWorldNPCCharacter* NPC);
 };

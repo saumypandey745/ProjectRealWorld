@@ -112,7 +112,7 @@ void URealWorldRespawnSubsystem::CompleteRespawn()
         // Wipe police wanted stars
         if (UPoliceWantedSubsystem* Wanted = World->GetSubsystem<UPoliceWantedSubsystem>())
         {
-            Wanted->ResetWantedLevel();
+            Wanted->ClearWantedLevel();
         }
     }
 

@@ -114,14 +114,14 @@ void URealWorldWeaponWheelWidget::SelectSlotFromAngle(float AngleDegrees)
     }
 }
 
-void URealWorldWeaponWheelWidget::SetSlotData(EWeaponWheelSlot Slot, const FWeaponWheelSlotData& Data)
+void URealWorldWeaponWheelWidget::SetSlotData(EWeaponWheelSlot InSlot, const FWeaponWheelSlotData& Data)
 {
-    SlotsData.Add(Slot, Data);
+    SlotsData.Add(InSlot, Data);
 }
 
-FWeaponWheelSlotData URealWorldWeaponWheelWidget::GetSlotData(EWeaponWheelSlot Slot) const
+FWeaponWheelSlotData URealWorldWeaponWheelWidget::GetSlotData(EWeaponWheelSlot InSlot) const
 {
-    if (const FWeaponWheelSlotData* Found = SlotsData.Find(Slot))
+    if (const FWeaponWheelSlotData* Found = SlotsData.Find(InSlot))
     {
         return *Found;
     }
