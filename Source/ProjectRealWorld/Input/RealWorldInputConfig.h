@@ -32,9 +32,6 @@ public:
 	TObjectPtr<UInputAction> IA_Look;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Actions|Movement")
-	TObjectPtr<UInputAction> IA_LookMouse;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Actions|Movement")
 	TObjectPtr<UInputAction> IA_Jump;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Actions|Movement")

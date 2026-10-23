@@ -265,7 +265,6 @@ protected:
 
 	void Input_Move(const FInputActionValue& Value);
 	void Input_Look(const FInputActionValue& Value);
-	void Input_LookMouse(const FInputActionValue& Value);
 	void Input_JumpStarted();
 	void Input_JumpStopped();
 	void Input_SprintStarted();

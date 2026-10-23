@@ -9,56 +9,31 @@ void URealWorldPlatformSubsystem::Initialize(FSubsystemCollectionBase& Collectio
 {
 	Super::Initialize(Collection);
 
-	DetectPlatformAndCapabilities();
+	DetectAndroidHardware();
 
-	// Automatically apply initial recommended graphics preset
+	// Automatically apply initial recommended mobile graphics preset
 	ApplyGraphicsPreset(HardwareInfo.RecommendedPreset);
 }
 
-void URealWorldPlatformSubsystem::DetectPlatformAndCapabilities()
+void URealWorldPlatformSubsystem::DetectAndroidHardware()
 {
 	if (bHasInitializedHardware) return;
 
-	// 1. Identify Target Operating System
+	// Target Platform: Android Mobile (EditorEnvironment for development preview)
 #if WITH_EDITOR
 	HardwareInfo.PlatformType = ERealWorldPlatformType::EditorEnvironment;
-	HardwareInfo.bSupportsTouch = false;
-	HardwareInfo.bSupportsKeyboardMouse = true;
-	HardwareInfo.bSupportsGamepad = true;
-#elif PLATFORM_WINDOWS
-	HardwareInfo.PlatformType = ERealWorldPlatformType::WindowsPC;
-	HardwareInfo.bSupportsTouch = false;
-	HardwareInfo.bSupportsKeyboardMouse = true;
-	HardwareInfo.bSupportsGamepad = true;
-#elif PLATFORM_LINUX
-	HardwareInfo.PlatformType = ERealWorldPlatformType::LinuxPC;
-	HardwareInfo.bSupportsTouch = false;
-	HardwareInfo.bSupportsKeyboardMouse = true;
-	HardwareInfo.bSupportsGamepad = true;
-#elif PLATFORM_ANDROID
-	HardwareInfo.PlatformType = ERealWorldPlatformType::Android;
-	HardwareInfo.bSupportsTouch = true;
-	HardwareInfo.bSupportsKeyboardMouse = false;
-	HardwareInfo.bSupportsGamepad = true; // Bluetooth gamepads supported
-#elif PLATFORM_IOS
-	HardwareInfo.PlatformType = ERealWorldPlatformType::IOS;
-	HardwareInfo.bSupportsTouch = true;
-	HardwareInfo.bSupportsKeyboardMouse = false;
-	HardwareInfo.bSupportsGamepad = true;
 #else
-	HardwareInfo.PlatformType = ERealWorldPlatformType::WindowsPC;
-	HardwareInfo.bSupportsTouch = false;
-	HardwareInfo.bSupportsKeyboardMouse = true;
-	HardwareInfo.bSupportsGamepad = true;
+	HardwareInfo.PlatformType = ERealWorldPlatformType::Android;
 #endif
+	HardwareInfo.bSupportsTouch = true;
 
-	// 2. Hardware Query
+	// Query Android CPU Cores and RAM
 	HardwareInfo.PhysicalCores = FPlatformMisc::NumberOfCores();
-	
+
 	FPlatformMemoryStats MemStats = FPlatformMemory::GetStats();
 	HardwareInfo.TotalSystemMemoryMB = static_cast<int32>(MemStats.TotalPhysical / (1024 * 1024));
 
-	HardwareInfo.GPUDescription = GRHIAdapterName.IsEmpty() ? TEXT("Generic GPU Device") : GRHIAdapterName;
+	HardwareInfo.GPUDescription = GRHIAdapterName.IsEmpty() ? TEXT("Android Mobile GPU (Vulkan/GLES)") : GRHIAdapterName;
 
 	if (GEngine && GEngine->GameViewport)
 	{
@@ -72,11 +47,11 @@ void URealWorldPlatformSubsystem::DetectPlatformAndCapabilities()
 	}
 	else
 	{
-		HardwareInfo.ScreenResolution = FIntPoint(1920, 1080);
-		HardwareInfo.AspectRatio = 1.777f;
+		HardwareInfo.ScreenResolution = FIntPoint(1080, 2400); // Standard Android FHD+ screen
+		HardwareInfo.AspectRatio = 20.0f / 9.0f;
 	}
 
-	// 3. Determine Performance Tier & Baseline Preset
+	// Determine Mobile Performance Tier & Baseline Preset
 	HardwareInfo.PerformanceTier = DeterminePerformanceTier();
 	HardwareInfo.RecommendedPreset = DetermineRecommendedPreset(HardwareInfo.PerformanceTier);
 	ActiveGraphicsPreset = HardwareInfo.RecommendedPreset;
@@ -86,45 +61,22 @@ void URealWorldPlatformSubsystem::DetectPlatformAndCapabilities()
 
 EPlatformPerformanceTier URealWorldPlatformSubsystem::DeterminePerformanceTier() const
 {
-	const bool bIsMobile = (HardwareInfo.PlatformType == ERealWorldPlatformType::Android || HardwareInfo.PlatformType == ERealWorldPlatformType::IOS);
-
-	if (bIsMobile)
+	// Mobile Tiering — Optimized specifically for 4GB, 6GB, and 8GB+ Android devices
+	// 4GB RAM phones (actual usable ~3200-3800MB): MobileLow -> 30fps stable
+	// 6GB RAM phones (Snapdragon 7xx / Dimensity 700+): MobileMedium -> 45fps
+	// 8GB+ flagship phones: MobileHigh -> 60fps
+	if (HardwareInfo.TotalSystemMemoryMB >= 7000 && HardwareInfo.PhysicalCores >= 8)
 	{
-		// Mobile Tiering — Indian market focus
-		// 4GB RAM phones (actual usable ~3400-3800MB): MobileLow → 30fps smooth
-		// 6GB RAM phones (Snapdragon 7xx): MobileMedium → 45fps
-		// 8GB+ flagship: MobileHigh → 60fps
-		if (HardwareInfo.TotalSystemMemoryMB >= 7000 && HardwareInfo.PhysicalCores >= 8)
-		{
-			return EPlatformPerformanceTier::MobileHigh; // Flagship (Snapdragon 8 Gen 2/3)
-		}
-		else if (HardwareInfo.TotalSystemMemoryMB >= 5000 && HardwareInfo.PhysicalCores >= 6)
-		{
-			return EPlatformPerformanceTier::MobileMedium; // 6GB mid-range
-		}
-		else if (HardwareInfo.TotalSystemMemoryMB >= 3200)
-		{
-			return EPlatformPerformanceTier::MobileLow; // 4GB — optimized 30fps mode
-		}
-		// Below 3GB — minimum spec warning
-		return EPlatformPerformanceTier::MobileLow;
+		return EPlatformPerformanceTier::MobileHigh;
+	}
+	else if (HardwareInfo.TotalSystemMemoryMB >= 5000 && HardwareInfo.PhysicalCores >= 6)
+	{
+		return EPlatformPerformanceTier::MobileMedium;
 	}
 	else
 	{
-		// PC / Editor Tiering based on RAM, Core count, and GPU capabilities
-		if (HardwareInfo.TotalSystemMemoryMB >= 28000 && HardwareInfo.PhysicalCores >= 8)
-		{
-			return EPlatformPerformanceTier::Ultra; // Enthusiast PC (RTX 4080/4090 class)
-		}
-		else if (HardwareInfo.TotalSystemMemoryMB >= 14000 && HardwareInfo.PhysicalCores >= 6)
-		{
-			return EPlatformPerformanceTier::High; // Mainstream Gaming PC (RTX 3060/4060 class)
-		}
-		else if (HardwareInfo.TotalSystemMemoryMB >= 7500)
-		{
-			return EPlatformPerformanceTier::Medium; // Entry PC
-		}
-		return EPlatformPerformanceTier::Low; // Intel HD / Legacy fallback
+		// Default tier for 4GB RAM devices (Snapdragon 680/695, Helio G88/G99, etc.)
+		return EPlatformPerformanceTier::MobileLow;
 	}
 }
 
@@ -132,35 +84,14 @@ ERealWorldGraphicsPreset URealWorldPlatformSubsystem::DetermineRecommendedPreset
 {
 	switch (Tier)
 	{
-	case EPlatformPerformanceTier::Ultra:
-		return ERealWorldGraphicsPreset::PC_Ultra;
-	case EPlatformPerformanceTier::High:
-		return ERealWorldGraphicsPreset::PC_High;
-	case EPlatformPerformanceTier::Medium:
-		return ERealWorldGraphicsPreset::PC_Medium;
-	case EPlatformPerformanceTier::Low:
-		return ERealWorldGraphicsPreset::PC_Low;
 	case EPlatformPerformanceTier::MobileHigh:
 		return ERealWorldGraphicsPreset::Mobile_High;
 	case EPlatformPerformanceTier::MobileMedium:
 		return ERealWorldGraphicsPreset::Mobile_Medium;
 	case EPlatformPerformanceTier::MobileLow:
-		return ERealWorldGraphicsPreset::Mobile_Low;
 	default:
-		return ERealWorldGraphicsPreset::PC_High;
+		return ERealWorldGraphicsPreset::Mobile_Low;
 	}
-}
-
-bool URealWorldPlatformSubsystem::IsMobilePlatform() const
-{
-	return HardwareInfo.PlatformType == ERealWorldPlatformType::Android || HardwareInfo.PlatformType == ERealWorldPlatformType::IOS;
-}
-
-bool URealWorldPlatformSubsystem::IsPCOrEditor() const
-{
-	return HardwareInfo.PlatformType == ERealWorldPlatformType::WindowsPC ||
-	       HardwareInfo.PlatformType == ERealWorldPlatformType::LinuxPC ||
-	       HardwareInfo.PlatformType == ERealWorldPlatformType::EditorEnvironment;
 }
 
 void URealWorldPlatformSubsystem::ApplyGraphicsPreset(ERealWorldGraphicsPreset NewPreset)
@@ -186,22 +117,10 @@ void URealWorldPlatformSubsystem::SetBatteryThermalMode(EBatteryThermalMode NewM
 
 int32 URealWorldPlatformSubsystem::GetScaledCrowdBudget() const
 {
-	int32 BaseCount = 24;
+	int32 BaseCount = 6;
 
 	switch (ActiveGraphicsPreset)
 	{
-	case ERealWorldGraphicsPreset::PC_Ultra:
-		BaseCount = 32;
-		break;
-	case ERealWorldGraphicsPreset::PC_High:
-		BaseCount = 24;
-		break;
-	case ERealWorldGraphicsPreset::PC_Medium:
-		BaseCount = 16;
-		break;
-	case ERealWorldGraphicsPreset::PC_Low:
-		BaseCount = 10;
-		break;
 	case ERealWorldGraphicsPreset::Mobile_High:
 		BaseCount = 14;
 		break;
@@ -209,17 +128,14 @@ int32 URealWorldPlatformSubsystem::GetScaledCrowdBudget() const
 		BaseCount = 8;
 		break;
 	case ERealWorldGraphicsPreset::Mobile_Low:
-		BaseCount = 4;
-		break;
 	default:
-		BaseCount = 20;
+		BaseCount = 4; // 4GB phone safe crowd
 		break;
 	}
 
-	// Apply battery saver penalty if thermal throttling is active
 	if (ActiveBatteryMode == EBatteryThermalMode::BatterySaver)
 	{
-		BaseCount = FMath::Max(4, FMath::RoundToInt(BaseCount * 0.6f));
+		BaseCount = FMath::Max(3, FMath::RoundToInt(BaseCount * 0.6f));
 	}
 
 	return BaseCount;
@@ -227,33 +143,19 @@ int32 URealWorldPlatformSubsystem::GetScaledCrowdBudget() const
 
 int32 URealWorldPlatformSubsystem::GetScaledTrafficDensity() const
 {
-	int32 BaseVehicles = 14;
+	int32 BaseVehicles = 4;
 
 	switch (ActiveGraphicsPreset)
 	{
-	case ERealWorldGraphicsPreset::PC_Ultra:
-		BaseVehicles = 30;
-		break;
-	case ERealWorldGraphicsPreset::PC_High:
-		BaseVehicles = 20;
-		break;
-	case ERealWorldGraphicsPreset::PC_Medium:
-		BaseVehicles = 12;
-		break;
-	case ERealWorldGraphicsPreset::PC_Low:
-		BaseVehicles = 6;
-		break;
 	case ERealWorldGraphicsPreset::Mobile_High:
 		BaseVehicles = 8;
 		break;
 	case ERealWorldGraphicsPreset::Mobile_Medium:
-		BaseVehicles = 4;
+		BaseVehicles = 5;
 		break;
 	case ERealWorldGraphicsPreset::Mobile_Low:
-		BaseVehicles = 2;
-		break;
 	default:
-		BaseVehicles = 12;
+		BaseVehicles = 2; // 4GB phone safe traffic
 		break;
 	}
 
@@ -269,14 +171,13 @@ float URealWorldPlatformSubsystem::GetScaledDrawDistanceMultiplier() const
 {
 	switch (ActiveGraphicsPreset)
 	{
-	case ERealWorldGraphicsPreset::PC_Ultra: return 1.5f;
-	case ERealWorldGraphicsPreset::PC_High: return 1.0f;
-	case ERealWorldGraphicsPreset::PC_Medium: return 0.8f;
-	case ERealWorldGraphicsPreset::PC_Low: return 0.6f;
-	case ERealWorldGraphicsPreset::Mobile_High: return 0.75f;
-	case ERealWorldGraphicsPreset::Mobile_Medium: return 0.55f;
-	case ERealWorldGraphicsPreset::Mobile_Low: return 0.40f;
-	default: return 1.0f;
+	case ERealWorldGraphicsPreset::Mobile_High:
+		return 0.75f;
+	case ERealWorldGraphicsPreset::Mobile_Medium:
+		return 0.55f;
+	case ERealWorldGraphicsPreset::Mobile_Low:
+	default:
+		return 0.40f;
 	}
 }
 
@@ -289,19 +190,13 @@ int32 URealWorldPlatformSubsystem::GetTargetFrameRate() const
 
 	switch (ActiveGraphicsPreset)
 	{
-	case ERealWorldGraphicsPreset::PC_Ultra:
-	case ERealWorldGraphicsPreset::PC_High:
-		return 60;
-	case ERealWorldGraphicsPreset::PC_Medium:
-	case ERealWorldGraphicsPreset::PC_Low:
-		return 60;
 	case ERealWorldGraphicsPreset::Mobile_High:
 		return 60;
 	case ERealWorldGraphicsPreset::Mobile_Medium:
+		return 45;
 	case ERealWorldGraphicsPreset::Mobile_Low:
-		return 30;
 	default:
-		return 60;
+		return 30;
 	}
 }
 
@@ -313,59 +208,8 @@ void URealWorldPlatformSubsystem::ApplyScalabilityCvars(ERealWorldGraphicsPreset
 
 	switch (Preset)
 	{
-	case ERealWorldGraphicsPreset::PC_Ultra:
-		GEngine->Exec(GetWorld(), TEXT("r.Nanite 1"));
-		GEngine->Exec(GetWorld(), TEXT("r.DynamicGlobalIlluminationMethod 1"));
-		GEngine->Exec(GetWorld(), TEXT("r.Lumen.HardwareRayTracing 1"));
-		GEngine->Exec(GetWorld(), TEXT("r.Shadow.Virtual.Enable 1"));
-		GEngine->Exec(GetWorld(), TEXT("r.ViewDistanceScale 1.5"));
-		GEngine->Exec(GetWorld(), TEXT("r.Niagara.QualityLevel 3"));
-		if (UserSettings)
-		{
-			UserSettings->SetOverallScalabilityLevel(3); // Epic/Cine
-		}
-		break;
-
-	case ERealWorldGraphicsPreset::PC_High:
-		GEngine->Exec(GetWorld(), TEXT("r.Nanite 1"));
-		GEngine->Exec(GetWorld(), TEXT("r.DynamicGlobalIlluminationMethod 1"));
-		GEngine->Exec(GetWorld(), TEXT("r.Lumen.HardwareRayTracing 0"));
-		GEngine->Exec(GetWorld(), TEXT("r.Shadow.Virtual.Enable 1"));
-		GEngine->Exec(GetWorld(), TEXT("r.ViewDistanceScale 1.0"));
-		GEngine->Exec(GetWorld(), TEXT("r.Niagara.QualityLevel 2"));
-		if (UserSettings)
-		{
-			UserSettings->SetOverallScalabilityLevel(2); // High
-		}
-		break;
-
-	case ERealWorldGraphicsPreset::PC_Medium:
-		GEngine->Exec(GetWorld(), TEXT("r.Nanite 1"));
-		GEngine->Exec(GetWorld(), TEXT("r.DynamicGlobalIlluminationMethod 1"));
-		GEngine->Exec(GetWorld(), TEXT("r.Shadow.Virtual.Enable 1"));
-		GEngine->Exec(GetWorld(), TEXT("r.ViewDistanceScale 0.8"));
-		GEngine->Exec(GetWorld(), TEXT("r.Niagara.QualityLevel 1"));
-		if (UserSettings)
-		{
-			UserSettings->SetOverallScalabilityLevel(1); // Medium
-		}
-		break;
-
-	case ERealWorldGraphicsPreset::PC_Low:
-		GEngine->Exec(GetWorld(), TEXT("r.Nanite 0"));
-		GEngine->Exec(GetWorld(), TEXT("r.DynamicGlobalIlluminationMethod 0"));
-		GEngine->Exec(GetWorld(), TEXT("r.Shadow.Virtual.Enable 0"));
-		GEngine->Exec(GetWorld(), TEXT("r.ShadowQuality 1"));
-		GEngine->Exec(GetWorld(), TEXT("r.ViewDistanceScale 0.6"));
-		GEngine->Exec(GetWorld(), TEXT("r.Niagara.QualityLevel 0"));
-		if (UserSettings)
-		{
-			UserSettings->SetOverallScalabilityLevel(0); // Low
-		}
-		break;
-
 	case ERealWorldGraphicsPreset::Mobile_High:
-		// Mobile Flagship: Optimized forward/mobile deferred, CSM shadows, medium view distance
+		// Mobile Flagship: CSM shadows 2 cascades, 1080p rendering, foliage 0.5
 		GEngine->Exec(GetWorld(), TEXT("r.Nanite 0"));
 		GEngine->Exec(GetWorld(), TEXT("r.DynamicGlobalIlluminationMethod 0"));
 		GEngine->Exec(GetWorld(), TEXT("r.Shadow.Virtual.Enable 0"));
@@ -381,6 +225,7 @@ void URealWorldPlatformSubsystem::ApplyScalabilityCvars(ERealWorldGraphicsPreset
 		break;
 
 	case ERealWorldGraphicsPreset::Mobile_Medium:
+		// Mid-range Android (6GB RAM): CSM shadows 1 cascade, 720p/1080p, foliage 0.3
 		GEngine->Exec(GetWorld(), TEXT("r.Nanite 0"));
 		GEngine->Exec(GetWorld(), TEXT("r.DynamicGlobalIlluminationMethod 0"));
 		GEngine->Exec(GetWorld(), TEXT("r.Shadow.Virtual.Enable 0"));
@@ -396,10 +241,13 @@ void URealWorldPlatformSubsystem::ApplyScalabilityCvars(ERealWorldGraphicsPreset
 		break;
 
 	case ERealWorldGraphicsPreset::Mobile_Low:
+	default:
+		// Low-end Android (4GB RAM / 64GB storage): Disabled heavy shadows, 720p, high performance
 		GEngine->Exec(GetWorld(), TEXT("r.Nanite 0"));
 		GEngine->Exec(GetWorld(), TEXT("r.DynamicGlobalIlluminationMethod 0"));
 		GEngine->Exec(GetWorld(), TEXT("r.Shadow.Virtual.Enable 0"));
 		GEngine->Exec(GetWorld(), TEXT("r.ShadowQuality 0"));
+		GEngine->Exec(GetWorld(), TEXT("r.Shadow.CSM.MaxCascades 1"));
 		GEngine->Exec(GetWorld(), TEXT("r.ViewDistanceScale 0.40"));
 		GEngine->Exec(GetWorld(), TEXT("r.Niagara.QualityLevel 0"));
 		GEngine->Exec(GetWorld(), TEXT("foliage.DensityScale 0.15"));
@@ -408,12 +256,9 @@ void URealWorldPlatformSubsystem::ApplyScalabilityCvars(ERealWorldGraphicsPreset
 			UserSettings->SetOverallScalabilityLevel(0);
 		}
 		break;
-
-	default:
-		break;
 	}
 
-	// Apply Frame Rate Capping based on battery mode
+	// Target Frame Rate Capping
 	int32 FPSCap = GetTargetFrameRate();
 	GEngine->Exec(GetWorld(), *FString::Printf(TEXT("t.MaxFPS %d"), FPSCap));
 

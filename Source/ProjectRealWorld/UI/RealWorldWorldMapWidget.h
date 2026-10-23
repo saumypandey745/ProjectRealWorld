@@ -59,11 +59,10 @@ public:
     virtual void NativeConstruct() override;
     virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
-    // ─── Touch / Mouse Navigation ────────────────────────────────────────────
+    // ─── Android Mobile Touch Navigation ────────────────────────────────────
     virtual FReply NativeOnTouchStarted(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent) override;
     virtual FReply NativeOnTouchMoved(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent) override;
     virtual FReply NativeOnTouchEnded(const FGeometry& InGeometry, const FPointerEvent& InGestureEvent) override;
-    virtual FReply NativeOnMouseWheel(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 
     // ─── Map Controls ────────────────────────────────────────────────────────
     UFUNCTION(BlueprintCallable, Category = "WorldMap")

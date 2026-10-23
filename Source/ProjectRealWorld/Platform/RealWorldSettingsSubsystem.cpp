@@ -60,17 +60,6 @@ void URealWorldSettingsSubsystem::SetResolutionMode(ERealWorldResolutionMode New
 			GEngine->Exec(GetWorld(), TEXT("r.Streaming.MipBias 0"));
 		}
 		break;
-
-	case ERealWorldResolutionMode::Res_4K:
-		ActiveSettings.ResolutionScale = 200.0f;
-		if (GEngine)
-		{
-			GEngine->Exec(GetWorld(), TEXT("r.ScreenPercentage 200"));
-			GEngine->Exec(GetWorld(), TEXT("r.TSR.History.ScreenPercentage 200"));
-			GEngine->Exec(GetWorld(), TEXT("r.TSR.Quality 4"));
-			GEngine->Exec(GetWorld(), TEXT("r.Streaming.MipBias 0"));
-		}
-		break;
 	}
 
 	ApplySettingsToEngine();
@@ -174,7 +163,7 @@ void URealWorldSettingsSubsystem::ResetToPlatformDefaults()
 	}
 	else
 	{
-		SetGraphicsPreset(ERealWorldGraphicsPreset::PC_High);
+		SetGraphicsPreset(ERealWorldGraphicsPreset::Mobile_Low);
 	}
 }
 

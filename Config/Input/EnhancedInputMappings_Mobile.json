@@ -1,6 +1,6 @@
 {
-  "Description": "Project RealWorld - Mobile Touch Enhanced Input Schema and Mapping Contexts",
-  "Platform": "Mobile (Android / iOS Touch)",
+  "Description": "Project RealWorld - Android Mobile Touch Enhanced Input Schema and Mapping Contexts",
+  "Platform": "Android Mobile Touch Exclusive",
   "VirtualTouchControls": {
     "LeftQuadrant": {
       "Type": "VirtualJoystick",

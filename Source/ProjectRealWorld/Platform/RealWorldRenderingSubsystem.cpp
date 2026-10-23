@@ -50,31 +50,24 @@ void URealWorldRenderingSubsystem::Deinitialize()
 // ─────────────────────────────────────────────────────────────────────────────
 void URealWorldRenderingSubsystem::AutoDetectAndApplyOptimalPreset()
 {
-    // Check system/GPU memory to determine best preset
-    const uint64 GPUMemory = FPlatformMemory::GetStats().TotalPhysical;
-    const bool bIsMobile   = FPlatformProperties::RequiresCookedData() && PLATFORM_ANDROID;
+    // Auto-detect optimal mobile preset based on Android device RAM
+    const uint64 SystemMemory = FPlatformMemory::GetStats().TotalPhysical;
 
-    if (!bIsMobile)
+    if (SystemMemory >= 7ULL * 1024 * 1024 * 1024)
     {
-        if (GPUMemory >= 8ULL * 1024 * 1024 * 1024) // 8GB VRAM
-        {
-            ApplyQualityPreset(ECinematicQualityPreset::PCUltra);
-        }
-        else
-        {
-            ApplyQualityPreset(ECinematicQualityPreset::PCHigh);
-        }
+        ApplyQualityPreset(ECinematicQualityPreset::MobileUltra); // 8GB+ Flagship
+    }
+    else if (SystemMemory >= 5ULL * 1024 * 1024 * 1024)
+    {
+        ApplyQualityPreset(ECinematicQualityPreset::MobileHigh);  // 6GB Mid-range
+    }
+    else if (SystemMemory >= 3ULL * 1024 * 1024 * 1024)
+    {
+        ApplyQualityPreset(ECinematicQualityPreset::MobileMedium); // 4GB Indian mid-phones
     }
     else
     {
-        if (GPUMemory >= 4ULL * 1024 * 1024 * 1024)
-            ApplyQualityPreset(ECinematicQualityPreset::MobileUltra);
-        else if (GPUMemory >= 2ULL * 1024 * 1024 * 1024)
-            ApplyQualityPreset(ECinematicQualityPreset::MobileHigh);
-        else if (GPUMemory >= 1ULL * 1024 * 1024 * 1024)
-            ApplyQualityPreset(ECinematicQualityPreset::MobileMedium);
-        else
-            ApplyQualityPreset(ECinematicQualityPreset::MobileLow);
+        ApplyQualityPreset(ECinematicQualityPreset::MobileLow);    // Budget fallback
     }
 }
 
@@ -91,8 +84,6 @@ void URealWorldRenderingSubsystem::ApplyQualityPreset(ECinematicQualityPreset Pr
         case ECinematicQualityPreset::MobileMedium: ApplyMobileMedium(); break;
         case ECinematicQualityPreset::MobileHigh:   ApplyMobileHigh();   break;
         case ECinematicQualityPreset::MobileUltra:  ApplyMobileUltra();  break;
-        case ECinematicQualityPreset::PCHigh:       ApplyPCHigh();       break;
-        case ECinematicQualityPreset::PCUltra:      ApplyPCUltra();      break;
     }
 }
 
@@ -171,45 +162,6 @@ void URealWorldRenderingSubsystem::ApplyMobileUltra()
     SetCVarFloat(TEXT("r.MobileContentScaleFactor"), 1.0f);
     SetCVarInt(TEXT("r.TemporalAA.Upscaling"),       1);
     UE_LOG(LogTemp, Log, TEXT("[RenderSubsystem] Preset: Mobile Ultra"));
-}
-
-void URealWorldRenderingSubsystem::ApplyPCHigh()
-{
-    SetCVarInt(TEXT("r.ShadowQuality"),             3);
-    SetCVarInt(TEXT("r.DynamicGlobalIlluminationMethod"), 1); // Lumen
-    SetCVarInt(TEXT("r.Lumen.HardwareRayTracing"),  0);
-    SetCVarInt(TEXT("r.ReflectionMethod"),           1);
-    SetCVarInt(TEXT("r.Shadow.Virtual.Enable"),      1);
-    SetCVarInt(TEXT("r.Nanite"),                     1);
-    SetCVarInt(TEXT("r.HairStrands.Enable"),         1);
-    SetCVarInt(TEXT("r.MotionBlurQuality"),          2);
-    SetCVarInt(TEXT("r.AmbientOcclusionLevels"),     2);
-    SetCVarInt(TEXT("r.BloomQuality"),               5);
-    SetCVarInt(TEXT("r.DepthOfFieldQuality"),        2);
-    SetCVarFloat(TEXT("r.ViewDistanceScale"),         1.0f);
-    SetCVarInt(TEXT("r.TemporalAA.Upscaling"),       1);
-    UE_LOG(LogTemp, Log, TEXT("[RenderSubsystem] Preset: PC High"));
-}
-
-void URealWorldRenderingSubsystem::ApplyPCUltra()
-{
-    // Full cinematic — Lumen + Hardware Ray Tracing + Hair Strands
-    SetCVarInt(TEXT("r.ShadowQuality"),             4);
-    SetCVarInt(TEXT("r.DynamicGlobalIlluminationMethod"), 1);
-    SetCVarInt(TEXT("r.Lumen.HardwareRayTracing"),  1); // HW RT enabled
-    SetCVarInt(TEXT("r.ReflectionMethod"),           1);
-    SetCVarInt(TEXT("r.Lumen.Reflections.HardwareRayTracing"), 1);
-    SetCVarInt(TEXT("r.Shadow.Virtual.Enable"),      1);
-    SetCVarInt(TEXT("r.Nanite"),                     1);
-    SetCVarInt(TEXT("r.HairStrands.Enable"),         1);
-    SetCVarInt(TEXT("r.MotionBlurQuality"),          4);
-    SetCVarInt(TEXT("r.AmbientOcclusionLevels"),     4);
-    SetCVarInt(TEXT("r.BloomQuality"),               5);
-    SetCVarInt(TEXT("r.DepthOfFieldQuality"),        4);
-    SetCVarFloat(TEXT("r.ViewDistanceScale"),         1.25f);
-    SetCVarInt(TEXT("r.TemporalAA.Upscaling"),       1);
-    SetCVarInt(TEXT("r.TSR.ShadingRejection.Flickering"), 1);
-    UE_LOG(LogTemp, Log, TEXT("[RenderSubsystem] Preset: PC Ultra (Full Cinematic)"));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

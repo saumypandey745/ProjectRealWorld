@@ -7,6 +7,11 @@
 class UInputMappingContext;
 class ARealWorldHUD;
 
+/**
+ * ARealWorldPlayerController
+ * Android Mobile Exclusive Player Controller.
+ * Manages touch-based virtual controls (dual virtual joysticks, touch look swipe, action buttons).
+ */
 UCLASS()
 class PROJECTREALWORLD_API ARealWorldPlayerController : public APlayerController
 {
@@ -15,34 +20,21 @@ class PROJECTREALWORLD_API ARealWorldPlayerController : public APlayerController
 public:
 	ARealWorldPlayerController();
 
-	/** PC Input Mapping Contexts */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input|PC")
-	TObjectPtr<UInputMappingContext> PC_OnFootContext;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input|PC")
-	TObjectPtr<UInputMappingContext> PC_VehicleContext;
-
-	/** Mobile Touch Input Mapping Contexts */
+	/** Mobile Touch Input Mapping Context for On-Foot locomotion and actions */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input|Mobile")
 	TObjectPtr<UInputMappingContext> Mobile_OnFootContext;
 
+	/** Mobile Touch Input Mapping Context for Vehicle driving and controls */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input|Mobile")
 	TObjectPtr<UInputMappingContext> Mobile_VehicleContext;
 
-	/** Whether active input mode is mobile touch or PC keyboard/mouse/gamepad */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Input|State")
-	bool bIsUsingMobileTouchInput = false;
-
-	/** Switch between on-foot and vehicle control mapping contexts */
+	/** Switch to vehicle driving touch context */
 	UFUNCTION(BlueprintCallable, Category = "InputContext")
 	void SwitchToVehicleContext(UInputMappingContext* VehicleContext = nullptr);
 
+	/** Switch to on-foot exploration touch context */
 	UFUNCTION(BlueprintCallable, Category = "InputContext")
 	void SwitchToOnFootContext(UInputMappingContext* OnFootContext = nullptr);
-
-	/** Switch input handling mode between Touch and Mouse/Keyboard/Gamepad */
-	UFUNCTION(BlueprintCallable, Category = "Input|Platform")
-	void SetInputPlatformMode(bool bUseMobileTouch);
 
 protected:
 	virtual void BeginPlay() override;

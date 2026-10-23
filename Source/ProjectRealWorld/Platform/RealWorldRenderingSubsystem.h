@@ -13,7 +13,7 @@
 
 class UPostProcessComponent;
 
-// ─── Cinematic Quality Presets ────────────────────────────────────────────────
+// ─── Cinematic Quality Presets (Android Mobile) ──────────────────────────────
 UENUM(BlueprintType)
 enum class ECinematicQualityPreset : uint8
 {
@@ -21,8 +21,6 @@ enum class ECinematicQualityPreset : uint8
     MobileMedium    UMETA(DisplayName = "Mobile Medium"),
     MobileHigh      UMETA(DisplayName = "Mobile High (60 FPS)"),
     MobileUltra     UMETA(DisplayName = "Mobile Ultra — Flagship"),
-    PCHigh          UMETA(DisplayName = "PC High"),
-    PCUltra         UMETA(DisplayName = "PC Ultra — Cinematic"),
 };
 
 // ─── Time-of-Day Rendering Params ────────────────────────────────────────────
@@ -243,8 +241,6 @@ private:
     void ApplyMobileMedium();
     void ApplyMobileHigh();
     void ApplyMobileUltra();
-    void ApplyPCHigh();
-    void ApplyPCUltra();
     void OnExplosionBloomEnd();
 
     // Scalability CVar helpers

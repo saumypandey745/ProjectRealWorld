@@ -64,13 +64,6 @@ FReply URealWorldWorldMapWidget::NativeOnTouchEnded(const FGeometry& InGeometry,
     return FReply::Handled();
 }
 
-FReply URealWorldWorldMapWidget::NativeOnMouseWheel(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
-{
-    const float WheelDelta = InMouseEvent.GetWheelDelta();
-    SetZoomLevel(CurrentZoom + WheelDelta * 0.2f);
-    return FReply::Handled();
-}
-
 void URealWorldWorldMapWidget::SetZoomLevel(float NewZoom)
 {
     CurrentZoom = FMath::Clamp(NewZoom, MinZoom, MaxZoom);

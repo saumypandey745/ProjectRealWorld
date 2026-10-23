@@ -158,11 +158,6 @@ void ARealWorldCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		EnhancedInputComponent->BindAction(InputConfig->IA_Look, ETriggerEvent::Triggered, this, &ARealWorldCharacter::Input_Look);
 	}
 
-	if (InputConfig->IA_LookMouse)
-	{
-		EnhancedInputComponent->BindAction(InputConfig->IA_LookMouse, ETriggerEvent::Triggered, this, &ARealWorldCharacter::Input_LookMouse);
-	}
-
 	if (InputConfig->IA_Jump)
 	{
 		EnhancedInputComponent->BindAction(InputConfig->IA_Jump, ETriggerEvent::Started, this, &ARealWorldCharacter::Input_JumpStarted);
@@ -265,17 +260,6 @@ void ARealWorldCharacter::Input_Move(const FInputActionValue& Value)
 }
 
 void ARealWorldCharacter::Input_Look(const FInputActionValue& Value)
-{
-	const FVector2D LookAxisVector = Value.Get<FVector2D>();
-
-	if (Controller != nullptr)
-	{
-		AddControllerYawInput(LookAxisVector.X * CameraSensitivityX);
-		AddControllerPitchInput(LookAxisVector.Y * CameraSensitivityY);
-	}
-}
-
-void ARealWorldCharacter::Input_LookMouse(const FInputActionValue& Value)
 {
 	const FVector2D LookAxisVector = Value.Get<FVector2D>();
 

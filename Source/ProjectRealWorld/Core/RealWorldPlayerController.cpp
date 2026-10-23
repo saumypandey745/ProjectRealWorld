@@ -1,13 +1,15 @@
 #include "Core/RealWorldPlayerController.h"
-#include "Platform/RealWorldPlatformSubsystem.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
 
 ARealWorldPlayerController::ARealWorldPlayerController()
 {
 	bShowMouseCursor = false;
-	DefaultMouseCursor = EMouseCursor::Crosshairs;
-	bIsUsingMobileTouchInput = false;
+	DefaultMouseCursor = EMouseCursor::None;
+	bEnableTouchEvents = true;
+	bEnableClickEvents = true;
+	bEnableTouchOverEvents = false;
+	bEnableMouseOverEvents = false;
 	bIsInVehicleMode = false;
 }
 
@@ -15,66 +17,23 @@ void ARealWorldPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Query centralized platform subsystem to initialize correct input mode
-	bool bShouldUseTouch = false;
-	if (UGameInstance* GI = GetGameInstance())
-	{
-		if (URealWorldPlatformSubsystem* PlatformSub = GI->GetSubsystem<URealWorldPlatformSubsystem>())
-		{
-			bShouldUseTouch = PlatformSub->IsMobilePlatform() || PlatformSub->SupportsTouchControls();
-		}
-	}
+	// Android Mobile Touch Setup: Game and UI mode allowing on-screen virtual joysticks & touch buttons
+	FInputModeGameAndUI InputMode;
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	InputMode.SetHideCursorDuringCapture(true);
+	SetInputMode(InputMode);
+	bShowMouseCursor = false;
+	bEnableTouchEvents = true;
 
-	SetInputPlatformMode(bShouldUseTouch);
-
-	// Initial on-foot context bind
+	// Initial on-foot mobile touch context bind
 	SwitchToOnFootContext();
-}
-
-void ARealWorldPlayerController::SetInputPlatformMode(bool bUseMobileTouch)
-{
-	bIsUsingMobileTouchInput = bUseMobileTouch;
-
-	if (bIsUsingMobileTouchInput)
-	{
-		// Touch setup: Game and UI mode allowing on-screen virtual controls
-		FInputModeGameAndUI InputMode;
-		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-		InputMode.SetHideCursorDuringCapture(false);
-		SetInputMode(InputMode);
-		bShowMouseCursor = false;
-		bEnableTouchEvents = true;
-	}
-	else
-	{
-		// PC setup: Game Only mode
-		FInputModeGameOnly InputMode;
-		SetInputMode(InputMode);
-		bShowMouseCursor = false;
-		bEnableTouchEvents = false;
-	}
-
-	// Reapply current context
-	if (bIsInVehicleMode)
-	{
-		SwitchToVehicleContext();
-	}
-	else
-	{
-		SwitchToOnFootContext();
-	}
 }
 
 void ARealWorldPlayerController::SwitchToVehicleContext(UInputMappingContext* VehicleContext)
 {
 	bIsInVehicleMode = true;
 
-	UInputMappingContext* TargetContext = VehicleContext;
-	if (!TargetContext)
-	{
-		TargetContext = bIsUsingMobileTouchInput ? Mobile_VehicleContext : PC_VehicleContext;
-	}
-
+	UInputMappingContext* TargetContext = VehicleContext ? VehicleContext : Mobile_VehicleContext.Get();
 	if (!TargetContext) return;
 
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
@@ -92,12 +51,7 @@ void ARealWorldPlayerController::SwitchToOnFootContext(UInputMappingContext* OnF
 {
 	bIsInVehicleMode = false;
 
-	UInputMappingContext* TargetContext = OnFootContext;
-	if (!TargetContext)
-	{
-		TargetContext = bIsUsingMobileTouchInput ? Mobile_OnFootContext : PC_OnFootContext;
-	}
-
+	UInputMappingContext* TargetContext = OnFootContext ? OnFootContext : Mobile_OnFootContext.Get();
 	if (!TargetContext) return;
 
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
